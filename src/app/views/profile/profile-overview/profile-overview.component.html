@@ -1,0 +1,181 @@
+<div class="flex flex-wrap">
+  <div class="flex flex-col w-full xl:w-1/2">
+    <!-- Time line -->
+    <mat-card class="default">
+      <h3 class="mx-16 my-6">Timeline</h3>
+      <mat-card-content>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-badge">
+              <img src="assets/images/face-6.jpg" alt="">
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-body-top flex">
+                <a href="#" class="timeline-body-title mr-4 rtl:ml-4"><b>Jhone Doe</b> updated his status</a>
+                <span class="text-muted">1 hour ago</span>
+                <span class="flex-grow"></span>
+              </div>
+              <div class="timeline-body-content">
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem necessitatibus natus fugit porro at
+                  sunt mollitia repellendus deserunt, libero similique.</p>
+              </div>
+              <div class="timeline-body-actions">
+                <a href="#" class="mr-4 rtl:ml-4 text-muted">Like</a>
+                <a href="#" class="text-muted">Comment</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-badge">
+              <img src="assets/images/face-2.jpg" alt="">
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-body-top flex">
+                <a href="#" class="timeline-body-title mr-4 rtl:ml-4"><b>Henry krick</b> added a new photo</a>
+                <span class="text-muted">15 hours ago</span>
+                <span class="flex-grow"></span>
+              </div>
+              <div class="timeline-body-content">
+                <img src="assets/images/photo-600_220.jpg" alt="">
+              </div>
+              <div class="timeline-body-actions">
+                <a href="#" class="mr-4 rtl:ml-4 text-muted">Like</a>
+                <a href="#" class="text-muted">Comment</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-badge">
+              <mat-icon class="icon-badge mat-bg-primary">settings</mat-icon>
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-body-top flex">
+                <a href="#" class="timeline-body-title mr-4 rtl:ml-4"><b>New follower</b></a>
+                <span class="text-muted">2 days ago</span>
+                <span class="flex-grow"></span>
+              </div>
+              <div class="timeline-body-content">
+                <p><a class="mat-color-primary" href="">Kevin Huyn</a> and 34 others followed you.</p>
+              </div>
+              <div class="timeline-body-actions">
+                <a href="#" class="mr-4 rtl:ml-4 text-muted">Like</a>
+                <a href="#" class="text-muted">Comment</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-badge">
+              <mat-icon class="icon-badge mat-bg-warn">settings</mat-icon>
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-body-top flex">
+                <a href="#" class="timeline-body-title mr-4 rtl:ml-4"><b>Membership upgraded</b></a>
+                <span class="text-muted">5 days ago</span>
+                <span class="flex-grow"></span>
+              </div>
+              <div class="timeline-body-content">
+                <p>Membership has been upgraded to pro</p>
+              </div>
+              <div class="timeline-body-actions">
+                <a href="#" class="mr-4 rtl:ml-4 text-muted">Like</a>
+                <a href="#" class="text-muted">Comment</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    <!-- End Time line -->
+
+    <mat-card class="default">
+      <h3 class="mx-16 my-6">Uploaded Photos</h3>
+      <mat-card-content class="p-0">
+        <mat-grid-list cols="3" rowHeight="1:1" class="app-gallery">
+          <!-- Gallery item -->
+          <mat-grid-tile *ngFor="let photo of photos">
+            <img [src]="photo.url" alt="">
+            <!-- item detail, show on hover -->
+            <div class="gallery-control-wrap">
+              <div class="gallery-control flex">
+                <h4 class="photo-detail fz-1">{{photo.name}}</h4>
+                <span class="flex-grow"></span>
+                <button mat-icon-button [matMenuTriggerFor]="photoMenu" class="">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #photoMenu="matMenu">
+                  <button mat-menu-item><mat-icon>send</mat-icon>Send as attachment</button>
+                  <button mat-menu-item><mat-icon>favorite</mat-icon>Favorite</button>
+                  <button mat-menu-item><mat-icon>delete</mat-icon>Delete</button>
+                </mat-menu>
+              </div>
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="flex flex-col w-full xl:w-1/2">
+    <mat-card class="default">
+      <h3 class="mx-4 my-4">Support Tickets</h3>
+      <mat-card-content class="p-0">
+        <div class="flex flex-row items-center px-2 py-3 hover:bg-slate-50" *ngFor="let t of tickets">
+          <img class="mr-4 rtl:ml-4 w-8 h-8 rounded-full" [src]="t.img" alt="">
+          <div class="flex w-full">
+            <h6 class="m-0 mr-4 rtl:ml-4">{{t.name}}</h6>
+            <span class="flex-grow"></span>
+            <div class="w-2/5">{{t.text | excerpt:20 }}</div>
+            <span class="flex-grow"></span>
+            <small class="text-muted mr-4 rtl:ml-4 ml-4 rtl:mr-4 rtl:ml-4">{{ t.date | relativeTime}}</small>
+          </div>
+          <mat-chip-listbox>
+            <mat-chip-option mat-sm-chip color="primary" [selected]="t.isOpen">{{t.isOpen ? 'active' :
+              'closed'}}</mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+        <div class="text-center">
+          <button mat-button class="full-width">View all</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="default">
+      <h3 class="mx-4 my-3">Assigned Tasks</h3>
+      <mat-card-content class="p-0">
+        <div class="mb-3">
+          <div class="flex items-center hover:bg-slate-50" *ngFor="let t of tasks">
+            <mat-checkbox class="mr-4 rtl:ml-4"></mat-checkbox>
+            <span>{{t.text}}</span>
+            <span class="flex-grow"></span>
+            <mat-chip mat-sm-chip color="primary" [selected]="t.status ? true : false">{{t.status ? 'completed' :
+              'pending'}}</mat-chip>
+            <button mat-icon-button mat-sm-button [matMenuTriggerFor]="taskMenu" class="tasktype-action ml-4 rtl:mr-4 rtl:ml-4">
+              <mat-icon class="text-muted">more_vert</mat-icon>
+            </button>
+            <mat-menu #taskMenu="matMenu">
+              <button mat-menu-item>
+                <mat-icon>done</mat-icon>
+                <span>Completed</span>
+              </button>
+              <button mat-menu-item>
+                <mat-icon>edit</mat-icon>
+                <span>Edit</span>
+              </button>
+              <button mat-menu-item>
+                <mat-icon>delete</mat-icon>
+                <span>Delete</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+        <div class="text-center">
+          <button mat-button class="full-width">View all</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

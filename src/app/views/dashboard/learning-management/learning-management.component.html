@@ -1,0 +1,129 @@
+<div class="">
+  <div class="flex flex-wrap">
+    <div class="w-full lg:w-3/4 md:w-3/4">
+      <mat-card class="p-6" [@animate]="{ value: '*', params: { y: '50px', delay: '300ms' } }">
+        <div class="flex flex-wrap justify-between">
+          <div class="flex flex-col items-start  justify-center w-7/10">
+            <mat-card-title class="!text-lg">Welcome Back! Watson</mat-card-title>
+            <p class="text-small">
+              You have completed <span class="font-bold">70%</span> of
+              your goal this week! Start a new goal and improve your result.
+            </p>
+          </div>
+          <div class="w-3/10">
+            <apx-chart [series]="welcomeProgressChart.series" [chart]="welcomeProgressChart.chartOptions.chart"
+              [grid]="welcomeProgressChart.chartOptions.grid"
+              [plotOptions]="welcomeProgressChart.chartOptions.plotOptions"
+              [colors]="welcomeProgressChart.chartOptions.colors" [stroke]="welcomeProgressChart.chartOptions.stroke"
+              [labels]="welcomeProgressChart.chartOptions.labels"
+              [responsive]="welcomeProgressChart.chartOptions.responsive"></apx-chart>
+          </div>
+        </div>
+      </mat-card>
+      <div class="flex flex-wrap">
+        <div class="w-full sm:w-1/2">
+          <mat-card class="p-4" [@animate]="{ value: '*', params: { y: '50px', delay: '400ms' } }">
+            <h5>Results</h5>
+            <div class="flex justify-between items-baseline" *ngFor="let r of results">
+              <div class="mr-2 rtl:ml-2">
+                <i class="material-icons text-10 text-{{r.color}} mr-4 rtl:ml-4">lens</i>
+              </div>
+              <div class="lm-title flex-grow">
+                <p class="font-weight-semi mb-0">{{r.name}}</p>
+                <p class="text-small text-muted">{{r.date}}</p>
+              </div>
+              <div class="ul-progressbar flex-grow">
+                <div class="progress-percentage flex">
+                  <span class="flex-grow"></span>
+                  <span class="text-muted">{{r.completed}}%</span>
+                </div>
+                <mat-progress-bar mode="determinate" [value]="r.completed" [color]="r.color"></mat-progress-bar>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+        <div class="w-full sm:w-1/2">
+          <mat-card class="p-4" [@animate]="{ value: '*', params: { y: '50px', delay: '400ms' } }">
+            <h5>Study time last week</h5>
+            <apx-chart [series]="studyChart.series" [chart]="studyChart.chartOptions.chart"
+              [legend]="studyChart.chartOptions.legend" [grid]="studyChart.chartOptions.grid"
+              [plotOptions]="studyChart.chartOptions.plotOptions" [colors]="studyChart.chartOptions.colors"
+              [dataLabels]="studyChart.chartOptions.dataLabels" [xaxis]="studyChart.chartOptions.xaxis"
+              [yaxis]="studyChart.chartOptions.yaxis"></apx-chart>
+          </mat-card>
+        </div>
+        <div class="w-full sm:w-1/2" [@animate]="{ value: '*', params: { y: '50px', delay: '600ms' } }">
+          <mat-card class="mat-bg-primary p-6">
+            <div class="flex items-center">
+              <div class="mr-6 rtl:ml-6 rounded-full flex items-center justify-center">
+                <span class="text-white font-bold text-18">R</span>
+              </div>
+              <div class="flex-grow">
+                <h4 class="text-white m-0">React tutorial</h4>
+                <p class="text-muted-white m-0">You watched today</p>
+              </div>
+              <button mat-icon-button>
+                <mat-icon class="text-muted-white">play_arrow</mat-icon>
+              </button>
+            </div>
+          </mat-card>
+        </div>
+        <div class="w-full sm:w-1/2" [@animate]="{ value: '*', params: { y: '50px', delay: '600ms' } }">
+          <mat-card class="mat-bg-warn p-6">
+            <div class="flex items-center">
+              <div class="mr-6 rtl:ml-6 rounded-full flex items-center justify-center">
+                <span class="text-white font-bold text-18">P</span>
+              </div>
+              <div class="flex-grow">
+                <h4 class="text-white m-0">Python for busy developers</h4>
+                <p class="text-muted-white m-0">You watched yesterday</p>
+              </div>
+              <button mat-icon-button>
+                <mat-icon class="text-muted-white">play_arrow</mat-icon>
+              </button>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+    <div class="w-full lg:w-1/4 md:w-1/4" [@animate]="{ value: '*', params: { y: '50px', delay: '400ms' } }">
+      <mat-card class="p-4">
+        <div class="px-2 py-4 mb-6 w-full flex flex-col items-center text-center blue-100 rounded">
+          <img class="mb-4" src="../../../../assets/images/illustrations/upgrade.svg" alt="">
+          <p class="font-weight-normal">Upgrade to <b>PRO</b> for <br> more resources</p>
+          <button mat-raised-button color="primary">UPGRADE NOW</button>
+        </div>
+
+        <div class="mat-heading-label">REMINDER</div>
+
+        <div class="flex mb-4" *ngFor="let r of reminders">
+          <div class="w-[40px] h-[40px] mr-4 rtl:ml-4 rounded-full mat-bg-chip flex items-center justify-center">
+            <mat-icon>{{r.icon}}</mat-icon>
+          </div>
+          <div class="flex flex-col justify-center flex-grow">
+            <h6 class="mb-1">{{r.title}}</h6>
+            <small class="text-muted">{{r.date}}</small>
+          </div>
+          <button mat-icon-button>
+            <mat-icon class="text-muted">more_vert</mat-icon>
+          </button>
+        </div>
+        <div class="my-4"></div>
+        <div class="mat-heading-label">Upcoming Challenges</div>
+        <div class="flex mb-4" *ngFor="let r of reminders">
+          <div class="w-[40px] h-[40px] mr-4 rtl:ml-4 rounded-full mat-bg-chip flex items-center justify-center">
+            <mat-icon>{{r.icon}}</mat-icon>
+          </div>
+          <div class="flex flex-col justify-center flex-grow">
+            <h6 class="mb-4">{{r.title}}</h6>
+            <small class="text-muted">{{r.date}}</small>
+          </div>
+          <button mat-icon-button>
+            <mat-icon class="text-muted">more_vert</mat-icon>
+          </button>
+        </div>
+
+      </mat-card>
+    </div>
+  </div>
+</div>

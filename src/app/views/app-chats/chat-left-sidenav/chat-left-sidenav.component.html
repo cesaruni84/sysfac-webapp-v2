@@ -1,0 +1,38 @@
+<!-- Left side topbar -->
+<mat-toolbar color="primary" class="chat-sidebar-toolbar">
+  <a href="" class="toolbar-avatar online">
+    <img [src]="currentUser.avatar" alt="">
+    <span class="status-dot mat-bg-primary"></span>
+  </a>
+  <h6 class="m-0 pl-4 font-normal fz-1">{{currentUser.name}}</h6>
+</mat-toolbar>
+<div [perfectScrollbar] class="chat-sidebar-scroll">
+  <!-- Left side contact list -->
+  <div class="inbox-nav-list" role="list">
+    <div class="flex p-4 items-center cursor-pointer hover:bg-slate-100" *ngFor="let info of currentUser?.chatInfo"
+      (click)="getChatByContact(info.contactId)">
+      <a mat-list-avatar [ngClass]="{online: (contacts | getValueByKey:info.contactId:'status') === 'online'}"
+        class="toolbar-avatar mr-2 rtl:ml-2">
+        <img [src]="contacts | getValueByKey:info.contactId:'avatar'" alt="">
+        <span class="status-dot mat-bg-primary"></span>
+      </a>
+      <div>
+        <h6 matLine class="mb-1">{{info.contactName}}</h6>
+        <p matLine class="text-muted mb-0">{{info.lastChatTime | date}}</p>
+      </div>
+    </div>
+
+  </div>
+  <mat-divider></mat-divider>
+  <div class="inbox-nav-list" role="list">
+    <div class="flex p-4 items-center cursor-pointer hover:bg-slate-100" *ngFor="let contact of contacts" (click)="getChatByContact(contact.id)">
+      <a mat-list-avatar [ngClass]="{online: contact.status === 'online'}" class="toolbar-avatar mr-2 rtl:ml-2">
+        <img [src]="contact.avatar" alt="">
+        <span class="status-dot"></span>
+      </a>
+      <h6 class="mb-0" matLine>{{contact.name}}</h6>
+      <!-- <p matLine class="text-muted">{{contact.lastChatTime  | date}}</p> -->
+    </div>
+
+  </div>
+</div>

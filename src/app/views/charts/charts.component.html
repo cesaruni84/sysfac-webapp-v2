@@ -1,0 +1,119 @@
+<div class="flex flex-wrap">
+  <div class="w-full md:w-1/3">
+    <mat-card class="p-0">
+      <mat-card-title class="">
+        <div class="card-title-text pl-4 rtl:pr-4 py-3">Vertical Bar chart</div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <canvas  
+          baseChart 
+          class="chart"
+          [datasets]="barChartData"
+          [labels]="barChartLabels"
+          [options]="barChartOptions"
+          [legend]="barChartLegend"
+          [type]="barChartType"></canvas>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+  
+
+  <div class="w-full md:w-1/3">
+    <mat-card class="p-0">
+      <mat-card-title class="">
+        <div class="card-title-text pl-4 rtl:pr-4 py-3">Stacked Bar chart</div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <canvas  
+          baseChart class="chart"
+          [datasets]="barChartData"
+          [labels]="barChartLabels"
+          [options]="barChartStackedOptions"
+          [legend]="barChartLegend"
+          [type]="barChartType"></canvas>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="w-full md:w-1/3">
+    <mat-card class="p-0">
+      <mat-card-title class="">
+        <div class="card-title-text pl-4 rtl:pr-4 py-3">Basic Line chart</div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <canvas 
+          baseChart 
+          class="chart"
+          [datasets]="lineChartData"
+          [labels]="lineChartLabels"
+          [options]="lineChartOptions"
+          [legend]="lineChartLegend"
+          [type]="lineChartType"></canvas>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div class="w-full md:w-1/3">
+    <mat-card class="p-0">
+      <mat-card-title class="">
+        <div class="card-title-text pl-4 rtl:pr-4 py-3">Point Line chart</div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <canvas 
+          baseChart 
+          class="chart"
+          [datasets]="lineChartPointsData"
+          [labels]="lineChartLabels"
+          [options]="lineChartPointsOptions"
+          [legend]="lineChartLegend"
+          [type]="lineChartType"></canvas>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div class="w-full md:w-1/3">
+    <mat-card class="p-0">
+      <mat-card-title class="">
+        <div class="card-title-text pl-4 rtl:pr-4 py-3">Bubble chart</div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <canvas 
+          baseChart 
+          class="chart"
+          [datasets]="bubbleChartData"
+          [labels]="bubbleChartLabels"
+          [options]="bubbleChartOptions"
+          [legend]="bubbleChartLegend"
+          [type]="bubbleChartType"></canvas>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="w-full md:w-1/3">
+    <mat-card class="p-0">
+      <mat-card-title class="">
+        <div class="card-title-text pl-4 rtl:pr-4 py-3">Radar chart</div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <div style="max-width: 260px; margin: auto;">
+          <canvas
+        class="chart" 
+        baseChart
+        [datasets]="radarChartData"
+        [labels]="radarChartLabels"
+        [legend]="false"
+        [type]="radarChartType"
+        (chartHover)="radarChartHovered($event)"
+        (chartClick)="radarChartClicked($event)"></canvas>
+        </div>
+        
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+</div>

@@ -1,0 +1,23 @@
+<mat-dialog-content>
+  <div class="flex flex-wrap justify-between items-center">
+    <mat-form-field>
+      <input #tagInput matInput placeholder="New tag" required
+        (keyup.enter)="addTag(tagInput.value);tagInput.value=''" />
+    </mat-form-field>
+    <button color="primary" mat-raised-button (click)="addTag(tagInput.value);tagInput.value=''">Add</button>
+  </div>
+
+  <div class="flex flex-col mt-5">
+    <div class="flex justify-between items-center mb-3" *ngFor="let tag of tagList; let i = index;">
+      <span>{{tag.id}}</span>
+      <span>{{tag.name}}</span>
+      <button color="warn" mat-raised-button (click)="tagList.splice(i,1);deleteTag(tag)">Delete</button>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>
+
+<!-- <button mat-button mat-dialog-close>Cancel</button>
+<button mat-button [mat-dialog-close]="true" cdkFocusInitial>Save</button> -->

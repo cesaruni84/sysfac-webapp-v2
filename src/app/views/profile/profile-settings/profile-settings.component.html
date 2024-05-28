@@ -1,0 +1,76 @@
+<mat-card class="p-0">
+  <mat-tab-group>
+    <mat-tab label="Account Settings">
+      <mat-card-content class="mt-4">
+          <form>
+            <mat-form-field class="full-width">
+              <input
+              matInput
+              name="name"
+              placeholder="Name"
+              value="">
+            </mat-form-field>
+            <mat-form-field class="full-width">
+                <input
+                matInput
+                name="title"
+                placeholder="Title"
+                value="">
+              </mat-form-field>
+            <mat-form-field class="full-width">
+              <input
+              matInput
+              name="email"
+              placeholder="Email"
+              value="">
+            </mat-form-field>
+            <mat-form-field class="full-width">
+              <input
+              matInput
+              name="phone"
+              placeholder="Phone"
+              value="">
+            </mat-form-field>
+            <mat-form-field class="full-width">
+              <input
+              matInput
+              name="address"
+              placeholder="Adresss"
+              value="">
+            </mat-form-field>
+            <mat-form-field class="full-width">
+              <input
+              matInput
+              name="website"
+              placeholder="Website"
+              value="">
+            </mat-form-field>
+            <button mat-raised-button color="primary">Save</button>
+          </form>
+      </mat-card-content>
+    </mat-tab>
+    <mat-tab label="Privacy Settings">
+      <mat-card-content>
+        <div class="mb-1 mt-4">
+          <mat-checkbox> Get weekly news in your email.</mat-checkbox>
+        </div>
+        <div class="mb-1">
+          <mat-checkbox> Get notification when someone follows you.</mat-checkbox>
+        </div>
+        <div class="mb-1">
+          <mat-checkbox> Get email when someone follows you.</mat-checkbox>
+        </div>
+        <div class="mb-1 mt-4">
+            <p>Choose your admin panel color schemes.</p>
+            <mat-radio-group class="flex flex-col">
+              <mat-radio-button value="indigo" class="">Indigo</mat-radio-button>
+              <mat-radio-button value="blue" class="">Blue</mat-radio-button>
+              <mat-radio-button value="pink" class="">Pink</mat-radio-button>
+              <mat-radio-button value="purple" class="">Purple</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <button mat-raised-button color="primary" class="!mt-4">Save</button>
+      </mat-card-content>
+    </mat-tab>
+  </mat-tab-group>
+</mat-card>

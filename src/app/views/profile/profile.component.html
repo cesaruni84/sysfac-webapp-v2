@@ -1,0 +1,71 @@
+<div class="flex flex-wrap">
+  <div class="w-full xl:w-[300px] md:w-1/2">
+    <mat-card class="profile-sidebar mb-4 pb-0">
+      <div class="propic flex justify-center">
+        <img src="assets/images/sq-face-220.jpg" alt="">
+      </div>
+      <div class="profile-title text-center mb-4">
+        <div class="main-title">{{(user | async)?.displayName}}</div>
+        <div class="subtitle m-2">Big Data Expert</div>
+        <div class="text-muted px-3">Hi I'm Jhone, sit amet consectetur adipisicing elit. Aperiam repellendus nam
+          perspiciatis.</div>
+      </div>
+      <div class="profile-actions flex justify-center items-center mb-4">
+        <button mat-raised-button color="primary" class="!mr-3">Message</button>
+        <button mat-raised-button color="accent">Follow</button>
+      </div>
+      <div class="profile-nav">
+        <div class="px-3 py-3 flex items-center cursor-pointer hover:bg-slate-50" routerLink="/profile/overview" routerLinkActive="list-item-active">
+          <mat-icon class="mr-2 rtl:ml-2">home</mat-icon>
+          Overview
+        </div>
+        <mat-divider></mat-divider>
+        <div class="px-3 py-3 flex items-center cursor-pointer hover:bg-slate-50" routerLink="/profile/settings" routerLinkActive="list-item-active">
+          <mat-icon class="mr-2 rtl:ml-2">settings</mat-icon>
+          Settings
+        </div>
+        <mat-divider></mat-divider>
+        <div class="px-3 py-3 flex items-center cursor-pointer hover:bg-slate-50" routerLink="/profile/blank" routerLinkActive="list-item-active">
+          <mat-icon class="mr-2 rtl:ml-2">content_paste</mat-icon>
+          Blank
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Contact Information -->
+    <mat-card class="default">
+      <h3 class="mx-4 mt-4 mb-2">Contact Information</h3>
+      <mat-card-content class="!pt-4">
+        <div class="flex flex-col mb-4">
+          <div class="flex">
+            <mat-icon class="mr-2 rtl:ml-2 text-muted">public</mat-icon>
+            <div>www.mhrafi.com</div>
+          </div>
+        </div>
+        <div class="flex flex-col mb-4">
+          <div class="flex">
+            <mat-icon class="mr-2 rtl:ml-2 text-muted">email</mat-icon>
+            <div>support&#64;ui-lib.com</div>
+          </div>
+        </div>
+        <div class="flex flex-col mb-4">
+          <div class="flex">
+            <mat-icon class="mr-2 rtl:ml-2 text-muted">phone</mat-icon>
+            <div>8801822778800</div>
+          </div>
+        </div>
+        <div class="flex flex-col mb-4">
+          <div class="flex">
+            <mat-icon class="mr-2 rtl:ml-2 text-muted">add_location</mat-icon>
+            <div>Sbidbazar, Sylhet, BD</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Profile Views -->
+  <div class="w-full md:w-1/2 xl:w-[calc(100%-300px)]">
+    <router-outlet></router-outlet>
+  </div>
+</div>

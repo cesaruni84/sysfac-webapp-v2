@@ -1,0 +1,56 @@
+<div class="product-details-wrap m-3 flex flex-wrap flex-col md:flex-row">
+  <div class="flex w-full m-2">
+    <button mat-icon-button class="text-muted" routerLink="/shop">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="flex-grow"></span>
+    <button mat-raised-button color="primary" routerLink="/shop/cart">
+      <mat-icon>shopping_cart</mat-icon> Cart ({{cartData?.itemCount}})
+    </button>
+  </div>
+  <div class="product-photos-wrap flex w-auto md:w-1/2 mb-4">
+    <div class="gallery-thumbnails" [@animate]="{value:'*',params:{delay: '100ms', x:'-100px'}}">
+      <img class="mat-elevation-z1 mb-1" [ngClass]="{'active': image.state === '1'}" *ngFor="let image of photoGallery"
+        [src]="image.url" (click)="changeState(image)">
+    </div>
+    <div class="gallery-photo" [@animate]="{value:'*',params:{delay: '100ms', y:'50px'}}">
+      <img class="mat-elevation-z2" *ngFor="let image of photoGallery" [src]="image.url" alt=""
+        [@fadeInOut]="image.state">
+    </div>
+  </div>
+
+  <div class="product-content-wrap w-full md:w-1/2" [@animate]="{value:'*',params:{delay: '100ms', x:'50px'}}">
+    <div class="product-rating m-2" *ngIf="product?.ratings?.rating">
+      <mat-icon aria-hidden="false" fontSize="14px" color="accent" aria-label="Rating" fontIcon="star"></mat-icon>
+      <p class="text-muted ml-4 rtl:mr-4 rtl:ml-4 mb-0">{{product?.ratings?.rating}} ({{product?.ratings?.ratingCount}} ratings)</p>
+    </div>
+    <h1 class="title">{{product?.name}}</h1>
+    <div class="main-info mb-4">
+      <p class="m-2" [ngStyle]="{maxWidth: '450px'}">{{product?.description}}</p>
+      <p class="text-muted p-line"><strong>Category:</strong> <span
+          class="mat-color-default">{{product?.category}}</span></p>
+      <p class="text-muted p-line"><strong>Tags:</strong> <span *ngFor="let t of product.tags"><span
+            class="mat-color-default">{{t}}</span> </span></p>
+    </div>
+    <div class="product-options">
+      <div class="opt-radio mb-4">
+        <label class="option-label text-muted">Choose an option: </label>
+        <mat-radio-group class="flex flex-col">
+          <mat-radio-button [value]="'opt1'" class="mb-2">Option 1</mat-radio-button>
+          <mat-radio-button [value]="'opt2'" class="mb-2">Option 2</mat-radio-button>
+          <mat-radio-button [value]="'opt3'" class="mb-2">Option 3</mat-radio-button>
+        </mat-radio-group>
+      </div>
+      <div class="opt-quantity mb-4">
+        <label class="option-label text-muted" for="quantity">Quantity: </label>
+        <input class="quantity-input default-bg" id="quantity" name="quantity" type="number" [(ngModel)]="quantity">
+      </div>
+    </div>
+    <div class="flex">
+      <button mat-raised-button color="accent" (click)="addToCart()" class="!mr-3"><mat-icon>add_shopping_cart</mat-icon> Add to
+        Cart</button>
+      <button mat-raised-button color="primary" routerLink="/shop"><mat-icon>chevron_left</mat-icon> Back to
+        Shop</button>
+    </div>
+  </div>
+</div>

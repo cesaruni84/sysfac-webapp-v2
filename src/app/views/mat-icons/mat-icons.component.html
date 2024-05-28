@@ -1,0 +1,29 @@
+<mat-card class="p-4 mb-4">
+  <mat-card-title class="border-bottom !mb-4">
+    <div class="card-title-text pl-4 rtl:pr-4">Easy to use</div>
+  </mat-card-title>
+  <mat-card-content>
+    <h6 class="mb-4">HTML</h6>
+    <p class="!mb-6"><code>&#x3c;mat-icon&#x3e;3d_rotation&#x3c;/mat-icon&#x3e;</code></p>
+    <h6 class="mb-1">Output</h6>
+    <mat-icon>3d_rotation</mat-icon>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="p-4">
+  <mat-card-title class="border-bottom !mb-8">
+    <div class="card-title-text">Icon list</div>
+  </mat-card-title>
+  <mat-card-content>
+    <div
+    class="text-center flex flex-wrap justify-start items-stretch">
+      <div
+      class="mb-12 w-1/2 lg:w-1/6 md:2/6 sm:w-3/6"
+      *ngFor="let icon of icons">
+        <mat-icon
+        class="mb-4">{{icon}}</mat-icon> <br>
+        <div>{{icon}}</div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

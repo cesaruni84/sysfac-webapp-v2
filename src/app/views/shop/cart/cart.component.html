@@ -1,0 +1,65 @@
+<div class="margin-333">
+  <table class="cart-table default-bg mat-elevation-z1" *ngIf="cart.length"
+    [@animate]="{value:'*',params:{delay: '100ms', x:'-50px'}}">
+    <thead>
+      <tr>
+        <th class="text-muted">Remove</th>
+        <th class="text-muted">Thumbnail</th>
+        <th class="text-muted">Product</th>
+        <th class="text-muted">Price</th>
+        <th class="text-muted">Quantity</th>
+        <th class="text-muted">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of cart">
+        <td><button mat-icon-button color="warn" (click)="removeProduct(item)"><mat-icon>close</mat-icon></button> </td>
+        <td><img class="cart-thumbnail" [src]="item.product.photo" style="cursor: pointer"
+            [routerLink]="['/shop/products', item.product._id]"></td>
+        <td><span style="cursor: pointer"
+            [routerLink]="['/shop/products', item.product._id]">{{item.product.name}}</span></td>
+        <td>{{item.product.price.sale | currency}}</td>
+        <td><input class="quantity-input default-bg" id="quantity" min="1" name="quantity" type="number"
+            (change)="onQuantityChange()" [(ngModel)]="item.data.quantity"></td>
+        <td>{{item.product.price.sale * item.data.quantity | currency}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="flex flex-col md:flex-row" *ngIf="cart.length" [@animate]="{value:'*',params:{delay: '100ms', x:'50px'}}">
+    <div class="flex-grow"></div>
+    <div class="w-full md:w-1/4">
+      <mat-card class="m-0 p-4">
+        <div class="line mb-4 flex">
+          <span class="fw-500">Subtotal:</span>
+          <span class="flex-grow"></span>
+          <span class="text-muted">${{subTotal}}</span>
+        </div>
+        <div class="line mb-4 flex">
+          <span class="fw-500">VAT:</span>
+          <span class="flex-grow"></span>
+          <span class="text-muted">{{vat}}%</span>
+        </div>
+        <mat-divider class=""></mat-divider>
+        <div class="line mb-4 flex !pt-4">
+          <span class="fw-500">Total:</span>
+          <span class="flex-grow"></span>
+          <span class="text-muted">${{total}}</span>
+        </div>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" routerLink="/shop/checkout">Checkout</button>
+          <span class="flex-grow"></span>
+          <button mat-button routerLink="/shop">Back To Shop</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
+  <div *ngIf="!cart.length" [@animate]="{value:'*',params:{delay: '100ms', y:'-50px'}}">
+    <mat-card class="text-center p-4">
+      <div class="">
+        <p>Your cart is empty</p>
+        <button mat-raised-button color="accent" routerLink="/shop">Go Back To Shop</button>
+      </div>
+    </mat-card>
+  </div>
+</div>
