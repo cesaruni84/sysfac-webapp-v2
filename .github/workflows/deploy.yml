@@ -1,0 +1,61 @@
+# CI/CD de SYSFAC v2 en Cloudflare Pages (tarea 1.2 de MIGRATION.md).
+#
+# - push a main            → build `production` → despliegue de producción.
+# - push a develop/wave/** → build `staging`    → vista previa en https://<rama>.sysfac-webapp-v2.pages.dev
+#                            (Cloudflare reemplaza "/" por "-": wave/ola-1 → wave-ola-1).
+# - pull request           → build `staging`    → vista previa de la rama del PR.
+#
+# Secrets requeridos (tarea 1.1): CLOUDFLARE_API_TOKEN (permiso "Cloudflare Pages: Edit")
+# y CLOUDFLARE_ACCOUNT_ID.
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'wave/**'
+  pull_request:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: deploy-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    name: Lint, test, build y despliegue
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npx ng lint
+
+      - name: Pruebas unitarias
+        run: npx ng test --watch=false
+
+      - name: Build
+        run: npx ng build --configuration ${{ github.ref_name == 'main' && github.event_name == 'push' && 'production' || 'staging' }}
+
+      - name: Desplegar en Cloudflare Pages
+        # Los PR desde forks no reciben secrets: se valida el build pero no se despliega.
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy dist/sysfac-webapp-v2/browser --project-name=sysfac-webapp-v2 --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true
