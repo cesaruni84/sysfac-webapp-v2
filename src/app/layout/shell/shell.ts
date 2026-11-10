@@ -8,6 +8,8 @@ import { ToastModule } from 'primeng/toast';
 import { filter } from 'rxjs';
 
 import { NotificacionService } from '../../core/notifications';
+import { ConfirmacionHost } from '../../shared/ui/confirmacion/confirmacion-host';
+import { CargandoGlobal } from '../../shared/ui/loader/cargando-global';
 import { LayoutBreadcrumb } from '../breadcrumb/breadcrumb';
 import { LayoutHeader } from '../header/header';
 import { LayoutSidebar } from '../sidebar/sidebar';
@@ -30,7 +32,16 @@ export const DURACION_TOAST = 5000;
  */
 @Component({
   selector: 'app-layout-shell',
-  imports: [RouterOutlet, DrawerModule, ToastModule, LayoutBreadcrumb, LayoutHeader, LayoutSidebar],
+  imports: [
+    RouterOutlet,
+    DrawerModule,
+    ToastModule,
+    ConfirmacionHost,
+    CargandoGlobal,
+    LayoutBreadcrumb,
+    LayoutHeader,
+    LayoutSidebar,
+  ],
   providers: [MessageService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block h-dvh' },
@@ -42,6 +53,9 @@ export const DURACION_TOAST = 5000;
       >Saltar al contenido</a
     >
     <p-toast position="top-right" [preventOpenDuplicates]="true" [life]="duracionToast" />
+    <!-- Diálogo de confirmación y loader global de shared/ui (3.3), uno solo para toda la zona privada. -->
+    <app-confirmacion-host />
+    <app-cargando-global />
 
     <div class="flex h-full overflow-hidden">
       @if (sidebarAbierto()) {

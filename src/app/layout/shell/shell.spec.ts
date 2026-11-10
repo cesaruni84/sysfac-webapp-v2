@@ -41,6 +41,8 @@ describe('LayoutShell', () => {
     expect(el.querySelector('main#contenido app-layout-breadcrumb')).not.toBeNull();
     expect(el.querySelector('main#contenido router-outlet')).not.toBeNull();
     expect(el.querySelector('p-toast')).not.toBeNull();
+    expect(el.querySelector('app-confirmacion-host')).not.toBeNull();
+    expect(el.querySelector('app-cargando-global')).not.toBeNull();
     expect(el.querySelector('a[href="#contenido"]')?.textContent).toContain('Saltar al contenido');
   });
 
