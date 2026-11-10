@@ -22,7 +22,7 @@ El desarrollo se organiza por capas. Las capas base se construyen **una vez y de
 |---|---|---|---|---|
 | **Infraestructura** | raíz, `.github/`, `public/`, `src/environments/`, `src/app/app.config.ts` | repo, tooling (ESLint, Vitest, Playwright), environments, CI/CD con Cloudflare, `_headers`, Web Analytics | — | 0 y 1 |
 | **Core** | `src/app/core/` (`models/`, `services/`, `auth/`, `interceptors/`, `domain/`) | contratos con el backend, servicios HTTP, autenticación, manejo de errores, exportación Excel/PDF, validadores y **reglas de negocio puras** (`domain/`: cálculo de importes e impuestos) | Infraestructura | 2 |
-| **Diseño** | `src/app/shared/ui/`, `src/app/layout/`, tema | tokens, layout y componentes reutilizables sobre PrimeNG; no contiene lógica de negocio | Core (solo tipos) | 3 |
+| **Diseño** | `src/app/shared/ui/`, `src/app/layout/`, tema | tokens, layout y componentes reutilizables sobre PrimeNG; no contiene lógica de negocio | Core (tipos y servicios de exportación Excel/PDF, que usa la tabla genérica de 3.3) | 3 |
 | **Funcionalidades** | `src/app/features/<modulo>/` | pantallas de negocio, cada una con su `<modulo>.routes.ts` | Core y Diseño; **nunca** otra feature | 4 |
 | **Producción** | — | validación contra v1, observabilidad de errores (Sentry), cambio de dominio, retiro de v1 y rendimiento | todas | 5 |
 
@@ -61,7 +61,7 @@ No se portan: las demos de Egret (`app-calendar`, `app-chats`, `app-inbox`, `sho
 |---|---|---|
 | 0.1 | `git init` en v2; crear el repo de GitHub `sysfac-webapp-v2` con ramas `main` (producción) y `develop`; revisar el `.gitignore` (`dist/`, `.angular/`) | Baja |
 | 0.2 | Verificar qué versión de PrimeNG soporta Angular 22. Si todavía no lo soporta, fijar Angular a la mayor versión que sí | Baja |
-| 0.3 | Instalar `primeng`, `@primeuix/themes`, `primeicons`, `tailwindcss` y `tailwindcss-primeui`; configurar `providePrimeNG` (preset Aura) en `src/app/app.config.ts` y las capas CSS en `src/styles.scss` | Baja |
+| 0.3 | Instalar `primeng`, `@primeuix/themes`, `primeicons`, `tailwindcss` y `tailwindcss-primeui`; configurar `providePrimeNG` (preset Aura) en `src/app/app.config.ts`. Las directivas de Tailwind y el orden de capas CSS van en `src/tailwind.css`, un CSS plano que se carga antes de `src/styles.scss`, porque Tailwind 4 no se procesa bien a través de Sass; `src/styles.scss` queda para los estilos globales | Baja |
 | 0.4 | Agregar ESLint (`angular-eslint`); Prettier y Vitest ya vienen en el proyecto | Baja |
 | 0.5 | Crear `src/environments` (`development`, `staging`, `production`) con `apiUrl`, para reemplazar `var.constant.ts` de v1; configurar `fileReplacements` en `angular.json` | Baja |
 | 0.6 | Escribir el checklist de flujos críticos usando v1 como referencia: login, guías, liquidación, facturación, maestros y exportaciones | Baja |
@@ -74,7 +74,7 @@ Va temprano, para tener una URL de vista previa desde el primer PR.
 |---|---|---|
 | 1.1 | En Cloudflare: crear el proyecto de Pages `sysfac-webapp-v2` en modo *Direct Upload* y un API token con permiso **Cloudflare Pages: Edit**. En GitHub: crear los secrets `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` | Baja |
 | 1.2 | Crear el workflow `.github/workflows/deploy.yml`. Pasos: `actions/checkout@v4`, Node 22, `npm ci`, `ng lint`, `ng test`, `ng build` (con la configuración `production` en `main` y `staging` en el resto), y luego `cloudflare/wrangler-action@v3` con `pages deploy dist/sysfac-webapp-v2/browser --project-name=sysfac-webapp-v2 --branch=${{ github.head_ref \|\| github.ref_name }}`. Disparadores: push a `main` (producción), y push a `develop`, a `wave/*` o PR (vista previa) | Media |
-| 1.3 | Enrutamiento SPA: confirmar que Pages devuelve `index.html` en rutas profundas (no debe existir `404.html` en el build). Agregar `public/_headers` con: cabeceras de seguridad (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` y una CSP básica que permita la URL del backend; el dominio de Sentry se agrega en 5.5); caché `immutable` para los `*.js` y `*.css` con hash, y `no-cache` para `index.html` | Baja |
+| 1.3 | Enrutamiento SPA: confirmar que Pages devuelve `index.html` en rutas profundas (no debe existir `404.html` en el build). Agregar `public/_headers` con: cabeceras de seguridad (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` y una CSP básica que permita la URL del backend; el dominio de Sentry se agrega en 5.5); caché `immutable` para los `*.js` y `*.css` con hash, y `no-cache` para `index.html`. Para que la CSP no necesite scripts inline, `inlineCritical` está desactivado en las configuraciones `production` y `staging` de `angular.json` | Baja |
 | 1.4 | Dominio propio: asociar el dominio al proyecto (DNS en Cloudflare o un CNAME). El HTTPS es automático. Mientras tanto se usa `sysfac-webapp-v2.pages.dev` | Baja |
 | 1.5 | Observabilidad básica: activar **Cloudflare Web Analytics** en el proyecto de Pages (visitas, Core Web Vitals). Sentry se integra después, en 5.5 | Baja |
 | 1.6 | Coordinación con el backend: que el API use HTTPS (si no, el navegador bloquea las llamadas por contenido mixto) y que su CORS permita el dominio de producción y `https://*.sysfac-webapp-v2.pages.dev` | Baja |
@@ -154,7 +154,7 @@ Bastan **dos definiciones de agente** (DevMid y DevSenior) y el orquestador; no 
 ### Reglas para que los agentes no colisionen
 1. **Aislamiento:** cada instancia corre con `isolation: "worktree"`, con su propio directorio y su rama `feat/<id-tarea>`, por ejemplo `feat/4.4-maestros`. Requisito: v2 debe ser repo git con un commit inicial (tarea 0.1).
 2. **Un dueño por carpeta:** cada pantalla vive en `src/app/features/<modulo>/` con su propio `<modulo>.routes.ts`, y solo la tarea asignada edita esa carpeta.
-3. **Archivos compartidos bloqueados:** solo el orquestador o DevSenior pueden editar `package.json`, `package-lock.json`, `angular.json`, `src/app/app.routes.ts`, `src/app/app.config.ts`, `src/styles.scss`, `src/app/core/**` y `src/app/shared/ui/**`. Si DevMid necesita un cambio ahí, lo pide en su reporte y no lo hace.
+3. **Archivos compartidos bloqueados:** solo el orquestador o DevSenior pueden editar `package.json`, `package-lock.json`, `angular.json`, `src/app/app.routes.ts`, `src/app/app.config.ts`, `src/styles.scss`, `src/tailwind.css`, `src/app/core/**` y `src/app/shared/ui/**`. Si DevMid necesita un cambio ahí, lo pide en su reporte y no lo hace.
 4. **Rutas preregistradas:** antes de la Fase 4, el orquestador deja en `app.routes.ts` todas las rutas lazy (`loadChildren: () => import('./features/<modulo>/<modulo>.routes')`) apuntando a stubs. Así ningún agente necesita tocar ese archivo.
 5. **Dependencias instaladas de antemano:** todas las librerías se instalan en la Fase 0 (PrimeNG, Tailwind, exceljs, jspdf, `@angular/google-maps`). La única excepción es `@sentry/angular`, que el orquestador instala en la tarea 5.5. Los agentes tienen prohibido hacer `npm install <paquete>`. En su worktree solo ejecutan `npm ci`.
 6. **Sin `ng serve` por parte de los agentes:** validan con `ng lint`, `ng test` y `ng build`, así no compiten por el puerto 4200 ni por la caché `.angular`.
