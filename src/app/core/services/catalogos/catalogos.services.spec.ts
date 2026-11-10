@@ -26,6 +26,11 @@ describe('Servicios de catálogos (contrato v1)', () => {
   function ver(url: string, method: string, body?: unknown) {
     const req = http.expectOne(url);
     expect(req.request.method).toBe(method);
+    if (method === 'GET') {
+      expect(req.request.headers.has('Content-Type')).toBe(false);
+    } else {
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+    }
     if (body !== undefined) {
       expect(req.request.body).toBe(body);
     }
@@ -100,6 +105,14 @@ describe('Servicios de catálogos (contrato v1)', () => {
     ver(`${api}/empresas/3/tarifas/5`, 'PUT', t);
     s.eliminarTarifa(t).subscribe();
     ver(`${api}/empresas/3/tarifas/5`, 'DELETE');
+  });
+
+  it('TarifaRutaService lanza error si falta la empresa y no envía nada', () => {
+    const s = TestBed.inject(TarifaRutaService);
+    const t = { id: 5 } as Parameters<TarifaRutaService['registrarTarifa']>[0];
+    expect(() => s.actualizarTarifa(t)).toThrow(/empresa/);
+    expect(() => s.eliminarTarifa(t)).toThrow(/empresa/);
+    http.expectNone(() => true);
   });
 
   it('Balanza, MotivoTraslado, UnidadMedida y Empresa (GET)', () => {

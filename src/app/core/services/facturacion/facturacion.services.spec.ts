@@ -23,12 +23,14 @@ describe('Servicios de facturación (contrato v1)', () => {
     s.listarClientesPorEmpresa(1).subscribe();
     const get = http.expectOne(`${api}/empresas/1/clientes`);
     expect(get.request.method).toBe('GET');
+    expect(get.request.headers.has('Content-Type')).toBe(false);
     get.flush([]);
 
     s.registrarCliente(cli).subscribe();
     const post = http.expectOne(`${api}/empresas/clientes`);
     expect(post.request.method).toBe('POST');
     expect(post.request.body).toBe(cli);
+    expect(post.request.headers.get('Content-Type')).toBe('application/json');
     post.flush({});
 
     s.actualizarCliente(cli).subscribe();
@@ -45,12 +47,14 @@ describe('Servicios de facturación (contrato v1)', () => {
     s.listarItemsParaFactura(1, 2).subscribe();
     const items = http.expectOne(`${api}/empresas/1/clientes`);
     expect(items.request.method).toBe('GET');
+    expect(items.request.headers.has('Content-Type')).toBe(false);
     items.flush([]);
 
     s.registrarDocumentoElectronico(doc, 1).subscribe();
     const post = http.expectOne(`${api}/empresas/1/documentos`);
     expect(post.request.method).toBe('POST');
     expect(post.request.body).toBe(doc);
+    expect(post.request.headers.get('Content-Type')).toBe('application/json');
     post.flush({});
 
     const puts: [() => void, string][] = [
@@ -79,21 +83,27 @@ describe('Servicios de facturación (contrato v1)', () => {
     expect(srv2.request.params.get('cliente')).toBe('3');
     expect(srv2.request.params.get('estado')).toBe('4');
     expect(srv2.request.params.get('tipoDocumento')).toBe('2');
+    expect(srv2.request.urlWithParams).toBe(
+      `${api}/empresas/1/documentos/SRV2?nroSerie=F001&nroSecuencia=10&tipoDocumento=2&cliente=3&estado=4&fechaIni=a&fechaFin=b`,
+    );
     srv2.flush([]);
 
     s.listarDocumentosConErrores(1, '01', 'a', 'b').subscribe();
     const err = http.expectOne((r) => r.url === `${api}/empresas/1/documentos/error`);
     expect(err.request.params.keys().sort()).toEqual(['fechaFin', 'fechaIni', 'subTipoDocumento']);
+    expect(err.request.urlWithParams).toBe(`${api}/empresas/1/documentos/error?subTipoDocumento=01&fechaIni=a&fechaFin=b`);
     err.flush([]);
 
     s.obtenerDocumentPorSerie(1, 2, 'F001', '10').subscribe();
     const srv1 = http.expectOne((r) => r.url === `${api}/empresas/1/documentos/SRV1`);
     expect(srv1.request.params.keys().sort()).toEqual(['nroSecuencia', 'nroSerie', 'tipoDocumento']);
+    expect(srv1.request.urlWithParams).toBe(`${api}/empresas/1/documentos/SRV1?tipoDocumento=2&nroSerie=F001&nroSecuencia=10`);
     srv1.flush({});
 
     s.validarDocumentPorSerie(1, 2, 'F001', '10').subscribe();
     const srv5 = http.expectOne((r) => r.url === `${api}/empresas/1/documentos/SRV5`);
     expect(srv5.request.params.keys().sort()).toEqual(['nroSecuencia', 'nroSerie', 'tipoDocumento']);
+    expect(srv5.request.urlWithParams).toBe(`${api}/empresas/1/documentos/SRV5?tipoDocumento=2&nroSerie=F001&nroSecuencia=10`);
     srv5.flush({});
   });
 });

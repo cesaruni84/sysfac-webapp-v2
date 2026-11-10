@@ -20,6 +20,7 @@ export * from './liquidacion.model';
 export * from './motivo-traslado.model';
 export * from './orden-servicio.model';
 export * from './producto.model';
+export * from './producto-servicio.model';
 export * from './tarifa-ruta.model';
 export * from './tipos-facturacion';
 export * from './tipos-genericos';

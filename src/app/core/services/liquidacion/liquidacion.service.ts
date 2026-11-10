@@ -61,6 +61,9 @@ export class LiquidacionService {
 
   /** v1 tipa `liquidacion` como `any` y usa `liquidacion.nrodoc` en la URL. */
   eliminarLiquidacionBD(idEmpresa: number, liquidacion: Pick<Liquidacion, 'nrodoc'>): Observable<InfoResponse> {
+    if (!liquidacion.nrodoc) {
+      throw new Error('Liquidación sin nrodoc: no se puede construir la URL de eliminación');
+    }
     return this.http.delete<InfoResponse>(
       `${this.empresas}${idEmpresa}/liquidaciones/${liquidacion.nrodoc}`,
       jsonHttpOptions,

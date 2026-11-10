@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { InfoResponse, Producto } from '../../models';
+import { InfoResponse, Producto, ProductoServicio } from '../../models';
 import { jsonHttpOptions } from '../http-options';
 
 /** Port de `ProductoService` de v1. */
@@ -17,9 +17,9 @@ export class ProductoService {
     return this.http.get<Producto[]>(this.productos);
   }
 
-  /** v1 la tipa `any[]`; se asume la forma `Producto` (revisar al migrar la pantalla de factura-item). */
-  listarComboProductosServicios(idEmpresa: number): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.empresas}/${idEmpresa}/productos-servicios/SRV1`);
+  /** v1 la tipa `any[]`; se tipa con `ProductoServicio` (campos que lee factura-item en v1). */
+  listarComboProductosServicios(idEmpresa: number): Observable<ProductoServicio[]> {
+    return this.http.get<ProductoServicio[]>(`${this.empresas}/${idEmpresa}/productos-servicios/SRV1`);
   }
 
   registrarProducto(producto: Producto): Observable<InfoResponse> {

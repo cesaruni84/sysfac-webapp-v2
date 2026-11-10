@@ -21,7 +21,7 @@ export class TarifaRutaService {
 
   actualizarTarifa(tarifaRuta: TarifaRuta): Observable<InfoResponse> {
     return this.http.put<InfoResponse>(
-      `${this.url}${tarifaRuta.empresa?.id}/tarifas/${tarifaRuta.id}`,
+      `${this.url}${this.idEmpresa(tarifaRuta)}/tarifas/${tarifaRuta.id}`,
       tarifaRuta,
       jsonHttpOptions,
     );
@@ -29,8 +29,17 @@ export class TarifaRutaService {
 
   eliminarTarifa(tarifaRuta: TarifaRuta): Observable<InfoResponse> {
     return this.http.delete<InfoResponse>(
-      `${this.url}${tarifaRuta.empresa?.id}/tarifas/${tarifaRuta.id}`,
+      `${this.url}${this.idEmpresa(tarifaRuta)}/tarifas/${tarifaRuta.id}`,
       jsonHttpOptions,
     );
+  }
+
+  /** v1 fallaba con TypeError (sin enviar nada) si faltaba la empresa; aquí se falla con un error claro. */
+  private idEmpresa(tarifaRuta: TarifaRuta): number {
+    const id = tarifaRuta.empresa?.id;
+    if (id === undefined || id === null) {
+      throw new Error('TarifaRuta sin empresa: no se puede construir la URL de tarifas');
+    }
+    return id;
   }
 }

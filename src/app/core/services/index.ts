@@ -15,4 +15,3 @@ export * from './liquidacion/impuesto.service';
 export * from './liquidacion/liquidacion.service';
 export * from './liquidacion/orden-servicio.service';
 export * from './util/tipos-genericos.service';
-export * from './util/ubigeos.service';

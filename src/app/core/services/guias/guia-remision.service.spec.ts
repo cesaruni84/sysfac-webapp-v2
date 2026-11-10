@@ -42,6 +42,19 @@ describe('GuiaRemisionService (contrato v1)', () => {
     expect(req.request.params.get('estado')).toBe('2');
     expect(req.request.params.get('conFormateo')).toBe('true');
     expect(req.request.params.get('tipoBusqueda')).toBe('6');
+    expect(req.request.urlWithParams).toBe(
+      `${api}/empresas/1/guias/SRV2?nroSerie=T001&nroSecuencia=12&chofer=3&origen=4&destino=5&estado=2&conFormateo=true&tipoBusqueda=6&fechaIni=2020-01-01&fechaFin=2020-01-31`,
+    );
+    expect(req.request.headers.has('Content-Type')).toBe(false);
+    req.flush([]);
+  });
+
+  it('listarGuiasConFiltros: conserva los params vacíos en la URL', () => {
+    service.listarGuiasConFiltros(1, '', '', 0, 0, 0, 0, false, 0, '', '').subscribe();
+    const req = esperar(`${api}/empresas/1/guias/SRV2`, 'GET');
+    expect(req.request.urlWithParams).toBe(
+      `${api}/empresas/1/guias/SRV2?nroSerie=&nroSecuencia=&chofer=0&origen=0&destino=0&estado=0&conFormateo=false&tipoBusqueda=0&fechaIni=&fechaFin=`,
+    );
     req.flush([]);
   });
 
@@ -52,6 +65,9 @@ describe('GuiaRemisionService (contrato v1)', () => {
     expect(req.request.params.get('nroSecuenciaCli')).toBe('N');
     expect(req.request.params.get('conFormateo')).toBe('false');
     expect(req.request.params.keys().length).toBe(10);
+    expect(req.request.urlWithParams).toBe(
+      `${api}/empresas/1/guias/SRV6?nroSerieCli=S&nroSecuenciaCli=N&chofer=3&origen=4&destino=5&estado=2&conFormateo=false&tipoBusqueda=6&fechaIni=a&fechaFin=b`,
+    );
     req.flush([]);
   });
 
@@ -60,6 +76,9 @@ describe('GuiaRemisionService (contrato v1)', () => {
     const req = esperar(`${api}/empresas/1/guias/SRV2`, 'GET');
     expect(req.request.params.keys().sort()).toEqual(
       ['chofer', 'destino', 'estado', 'fechaFin', 'fechaIni', 'nroSecuencia', 'nroSerie'],
+    );
+    expect(req.request.urlWithParams).toBe(
+      `${api}/empresas/1/guias/SRV2?nroSerie=S&nroSecuencia=N&chofer=3&destino=5&estado=2&fechaIni=a&fechaFin=b`,
     );
     req.flush([]);
   });
@@ -110,6 +129,7 @@ describe('GuiaRemisionService (contrato v1)', () => {
     const req = esperar(`${api}/empresas/1/guias/SRV3`, 'GET');
     expect(req.request.params.get('nroSerie')).toBe('S');
     expect(req.request.params.get('nroSecuencia')).toBe('N');
+    expect(req.request.urlWithParams).toBe(`${api}/empresas/1/guias/SRV3?nroSerie=S&nroSecuencia=N`);
     req.flush({});
   });
 
@@ -140,6 +160,7 @@ describe('GuiaRemisionService (contrato v1)', () => {
     expect(req.request.params.keys().sort()).toEqual(['destino', 'fechaFin', 'fechaIni', 'origen']);
     expect(req.request.params.get('origen')).toBe('2');
     expect(req.request.params.get('destino')).toBe('3');
+    expect(req.request.urlWithParams).toBe(`${api}/empresas/1/guias/SRV0?origen=2&destino=3&fechaIni=a&fechaFin=b`);
     req.flush([]);
   });
 
@@ -147,11 +168,14 @@ describe('GuiaRemisionService (contrato v1)', () => {
     service.listarGuiasRemisionPorFacturar(1, 2, 3, 'a', 'b').subscribe();
     const req = esperar(`${api}/empresas/1/guias/SRV4`, 'GET');
     expect(req.request.params.keys().sort()).toEqual(['destino', 'fechaFin', 'fechaIni', 'origen']);
+    expect(req.request.urlWithParams).toBe(`${api}/empresas/1/guias/SRV4?origen=2&destino=3&fechaIni=a&fechaFin=b`);
     req.flush([]);
   });
 
   it('eliminarGuiaBD: DELETE empresas/{id}/guias/{serie}/{secuencia}', () => {
     service.eliminarGuiaBD('T001', '12', 1).subscribe();
-    esperar(`${api}/empresas/1/guias/T001/12`, 'DELETE').flush({});
+    const req = esperar(`${api}/empresas/1/guias/T001/12`, 'DELETE');
+    expect(req.request.headers.get('Content-Type')).toBe('application/json');
+    req.flush({});
   });
 });

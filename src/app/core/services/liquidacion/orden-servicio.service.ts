@@ -16,8 +16,8 @@ export class OrdenServicioService {
   }
 
   /**
-   * v1 la llama `actualizarLiquidacionBD` (nombre heredado por error) y usa la URL
-   * singular `/orden-servicio/{id}`. Se conserva el nombre de v1 y se añade un alias correcto.
+   * Actualiza una orden de servicio. v1 la llama `actualizarLiquidacionBD` (nombre heredado
+   * por error); se conserva ese nombre. Usa la URL singular `/orden-servicio/{id}`.
    */
   actualizarLiquidacionBD(ordenServicio: OrdenServicio, idEmpresa: number): Observable<InfoResponse> {
     return this.http.put<InfoResponse>(
@@ -25,11 +25,6 @@ export class OrdenServicioService {
       ordenServicio,
       jsonHttpOptions,
     );
-  }
-
-  /** Alias con nombre correcto de `actualizarLiquidacionBD` (mismo endpoint). */
-  actualizarOrdenServicioBD(ordenServicio: OrdenServicio, idEmpresa: number): Observable<InfoResponse> {
-    return this.actualizarLiquidacionBD(ordenServicio, idEmpresa);
   }
 
   listarOrdenesServicioPorEmpresa(idEmpresa: number): Observable<OrdenServicio[]> {
