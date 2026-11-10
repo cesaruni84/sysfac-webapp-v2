@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/auth';
+
 /**
  * Rutas raíz de SYSFAC v2. Mantienen las mismas URLs que v1.
  *
@@ -8,7 +10,6 @@ import { Routes } from '@angular/router';
  *
  * Pendiente en oleadas posteriores:
  * - 3.2: envolver las rutas privadas con el componente de layout (shell).
- * - 2.3: proteger las rutas privadas con el guard funcional de autenticación.
  * - 3.4: páginas 404 y de error (la ruta comodín apuntará a la 404).
  */
 export const routes: Routes = [
@@ -18,7 +19,9 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes'),
   },
   {
+    // Rutas privadas: igual que v1 (app.routing.ts), el guard va en la ruta padre.
     path: '',
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
