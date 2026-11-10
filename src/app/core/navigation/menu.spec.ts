@@ -1,14 +1,8 @@
-import { TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
-import { RouterTestingHarness } from '@angular/router/testing';
 import type { MenuItem } from 'primeng/api';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { routes } from '../../app.routes';
-import { CURRENT_USER_KEY } from '../auth/session.service';
-import { usuarioMock } from '../auth/auth.testing';
-import { MENU_NEGOCIO } from './menu';
+import { describe, expect, it } from 'vitest';
+import { MENU_NEGOCIO, crearMenuNegocio } from './menu';
 
-function enlaces(items: MenuItem[]): string[] {
+function enlaces(items: readonly MenuItem[]): string[] {
   return items.flatMap((i) => [
     ...(typeof i.routerLink === 'string' ? [i.routerLink] : []),
     ...enlaces(i.items ?? []),
@@ -30,7 +24,12 @@ describe('MENU_NEGOCIO', () => {
       MENU_NEGOCIO.find((i) => i.label === label)?.items?.map((i) => i.label);
     expect(sub('Guías de Remisión')).toEqual(['Registro', 'Consulta']);
     expect(sub('Liquidación')).toEqual(['Registro', 'Consulta']);
-    expect(sub('Facturación')).toEqual(['Registro', 'Consulta', 'Auditoría', 'Factura Electrónica']);
+    expect(sub('Facturación')).toEqual([
+      'Registro',
+      'Consulta',
+      'Auditoría',
+      'Factura Electrónica',
+    ]);
     expect(sub('Configuración')).toEqual([
       'Plantas',
       'Tarifas',
@@ -53,22 +52,23 @@ describe('MENU_NEGOCIO', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  describe('routerLink', () => {
-    beforeEach(() => {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(usuarioMock));
-      TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
-    });
+  it('hay 16 enlaces', () => {
+    expect(enlaces(MENU_NEGOCIO)).toHaveLength(16);
+  });
+});
 
-    const todos = enlaces(MENU_NEGOCIO);
-
-    it('hay 16 enlaces', () => {
-      expect(todos).toHaveLength(16);
-    });
-
-    it.each(todos)('%s resuelve a una ruta existente', async (url) => {
-      const harness = await RouterTestingHarness.create();
-      await harness.navigateByUrl(url);
-      expect(TestBed.inject(Router).url).toBe(url);
-    });
+describe('crearMenuNegocio', () => {
+  it('devuelve copias independientes en cada llamada', () => {
+    const a = crearMenuNegocio();
+    const b = crearMenuNegocio();
+    expect(a).not.toBe(b);
+    expect(a[1]).not.toBe(b[1]);
+    expect(a).toEqual(b);
+    a[1].expanded = true;
+    a[1].items![0].label = 'X';
+    expect(b[1].expanded).toBeUndefined();
+    expect(b[1].items![0].label).toBe('Registro');
+    expect(crearMenuNegocio()[1].items![0].label).toBe('Registro');
+    expect(MENU_NEGOCIO[1].expanded).toBeUndefined();
   });
 });

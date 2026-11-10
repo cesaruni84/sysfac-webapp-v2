@@ -8,8 +8,14 @@ import type { MenuItem } from 'primeng/api';
  * Se omite el separador "MENU DEL SISTEMA" de v1 (el encabezado lo decide el layout 3.2).
  * "Factura Electrónica" apuntaba a `404` en v1 (pantalla inexistente): se conserva
  * deshabilitada y sin `routerLink`.
+ *
+ * "Usuarios" en v1 era un `dropDown` sin hijos que no navegaba; en v2 enlaza a `/profile`
+ * (diferencia intencionada).
+ *
+ * No pasar `MENU_NEGOCIO` directamente a `p-panelmenu` (muta el modelo con
+ * `item.expanded`): usar `crearMenuNegocio()`.
  */
-export const MENU_NEGOCIO: MenuItem[] = [
+export const MENU_NEGOCIO: readonly Readonly<MenuItem>[] = [
   { id: 'principal', label: 'Principal', icon: 'pi pi-th-large', routerLink: '/dashboard' },
   {
     id: 'guias',
@@ -36,7 +42,11 @@ export const MENU_NEGOCIO: MenuItem[] = [
     items: [
       { id: 'facturacion-registro', label: 'Registro', routerLink: '/forms/facturacion/registro' },
       { id: 'facturacion-consulta', label: 'Consulta', routerLink: '/forms/facturacion/consulta' },
-      { id: 'facturacion-auditoria', label: 'Auditoría', routerLink: '/forms/facturacion/auditoria' },
+      {
+        id: 'facturacion-auditoria',
+        label: 'Auditoría',
+        routerLink: '/forms/facturacion/auditoria',
+      },
       // v1: state '404' (no existe la pantalla). Sin enlace hasta que haya pantalla.
       { id: 'facturacion-electronica', label: 'Factura Electrónica', disabled: true },
     ],
@@ -57,3 +67,8 @@ export const MENU_NEGOCIO: MenuItem[] = [
   { id: 'usuarios', label: 'Usuarios', icon: 'pi pi-user', routerLink: '/profile' },
   { id: 'mapa', label: 'Localizar unidades', icon: 'pi pi-map-marker', routerLink: '/map' },
 ];
+
+/** Devuelve una copia nueva e independiente del menú en cada llamada (apta para `p-panelmenu`). */
+export function crearMenuNegocio(): MenuItem[] {
+  return structuredClone(MENU_NEGOCIO) as MenuItem[];
+}
