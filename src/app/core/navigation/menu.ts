@@ -72,3 +72,18 @@ export const MENU_NEGOCIO: readonly Readonly<MenuItem>[] = [
 export function crearMenuNegocio(): MenuItem[] {
   return structuredClone(MENU_NEGOCIO) as MenuItem[];
 }
+
+/** Cargo que en v1 no ve la sección "Facturación" del menú. */
+export const CARGO_REGISTRADOR = 'Registrador';
+
+/**
+ * Regla de v1 (`sidebar-side.component.ts`): si el cargo del usuario es exactamente
+ * `'Registrador'`, el menú no muestra la sección "Facturación". Devuelve un arreglo nuevo
+ * (no muta `menu`; las secciones conservan su identidad).
+ *
+ * Solo oculta la opción del menú, igual que v1: las URLs de facturación no se bloquean.
+ */
+export function filtrarMenuPorCargo(menu: MenuItem[], cargo: string | null | undefined): MenuItem[] {
+  if (cargo !== CARGO_REGISTRADOR) return [...menu];
+  return menu.filter((item) => item.id !== 'facturacion');
+}
