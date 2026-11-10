@@ -8,21 +8,21 @@ const routes: Routes = [
   {
     path: 'registro',
     title: 'Registro de factura | SYSFAC',
-    data: { title: 'Registro de factura', breadcrumb: 'Registro de factura' },
+    data: { title: 'Registro de factura', breadcrumb: 'Registro' },
     loadComponent: () =>
       import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
   },
   {
     path: 'consulta',
     title: 'Consulta de facturas | SYSFAC',
-    data: { title: 'Consulta de facturas', breadcrumb: 'Consulta de facturas' },
+    data: { title: 'Consulta de facturas', breadcrumb: 'Consulta' },
     loadComponent: () =>
       import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
   },
   {
     path: 'auditoria',
     title: 'Auditoría de facturas | SYSFAC',
-    data: { title: 'Auditoría de facturas', breadcrumb: 'Auditoría de facturas' },
+    data: { title: 'Auditoría de facturas', breadcrumb: 'Auditoría' },
     loadComponent: () =>
       import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
   },
