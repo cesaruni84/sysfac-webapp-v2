@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import type { Usuario } from '../models';
 
 /** Clave de localStorage; idéntica a v1. */
@@ -24,6 +24,17 @@ export class SessionService {
   /** Usuario actual (solo lectura). `null` si no hay sesión. */
   readonly usuarioActual = this._usuario.asReadonly();
 
+  constructor() {
+    // Sincroniza con otras pestañas (solo navegador).
+    if (typeof window === 'undefined') return;
+    const onStorage = (e: StorageEvent): void => {
+      // key === null: localStorage.clear() en otra pestaña.
+      if (e.key === null || e.key === CURRENT_USER_KEY) this._usuario.set(this.leer());
+    };
+    window.addEventListener('storage', onStorage);
+    inject(DestroyRef).onDestroy(() => window.removeEventListener('storage', onStorage));
+  }
+
   setUserLoggedIn(user: Usuario): void {
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
     this._usuario.set(user);
@@ -36,9 +47,7 @@ export class SessionService {
 
   /** Lee de localStorage (fuente de verdad). Devuelve `null` si falta o está corrupto. */
   getUserLoggedIn(): Usuario | null {
-    const usuario = this.leer();
-    if (usuario === null && this._usuario() !== null) this._usuario.set(null);
-    return usuario;
+    return this.leer();
   }
 
   isAuthenticated(): boolean {

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../environments/environment';
 import { SessionService } from '../auth/session.service';
-import { usuarioMock } from '../auth/testing';
+import { usuarioMock } from '../auth/auth.testing';
 import { authErrorInterceptor } from './auth-error.interceptor';
 
 describe('authErrorInterceptor', () => {
@@ -28,15 +28,26 @@ describe('authErrorInterceptor', () => {
     TestBed.inject(SessionService).setUserLoggedIn(usuarioMock);
   });
 
-  it('401 limpia la sesión y redirige con returnUrl', () => {
+  it('401 limpia la sesión y navega a signin sin returnUrl', () => {
     let status = 0;
     http.get('/api/x').subscribe({ error: (e) => (status = e.status) });
     ctrl.expectOne('/api/x').flush({}, { status: 401, statusText: 'Unauthorized' });
     expect(status).toBe(401);
-    expect(TestBed.inject(SessionService).isAuthenticated()).toBe(false);
-    expect(navigate).toHaveBeenCalledWith(['/sessions/signin'], {
-      queryParams: { returnUrl: '/guias' },
-    });
+    const session = TestBed.inject(SessionService);
+    expect(session.isAuthenticated()).toBe(false);
+    expect(session.usuarioActual()).toBeNull();
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith(['/sessions/signin']);
+  });
+
+  it('401 estando en /sessions/* limpia y propaga sin navegar', () => {
+    (TestBed.inject(Router) as { url: string }).url = '/sessions/signin';
+    let status = 0;
+    http.get('/api/x').subscribe({ error: (e) => (status = e.status) });
+    ctrl.expectOne('/api/x').flush({}, { status: 401, statusText: 'Unauthorized' });
+    expect(status).toBe(401);
+    expect(navigate).not.toHaveBeenCalled();
+    expect(TestBed.inject(SessionService).usuarioActual()).toBeNull();
   });
 
   it('401 del propio login no redirige ni limpia', () => {

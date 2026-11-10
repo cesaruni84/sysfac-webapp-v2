@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/ro
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { authGuard } from './auth.guard';
 import { SessionService } from './session.service';
-import { usuarioMock } from './testing';
+import { usuarioMock } from './auth.testing';
 
 describe('authGuard', () => {
   const navigate = vi.fn();

@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { UsuarioForm } from '../models';
 import { AuthService } from './auth.service';
 import { SessionService } from './session.service';
-import { usuarioMock } from './testing';
+import { usuarioMock } from './auth.testing';
 
 describe('AuthService', () => {
   beforeEach(() => {
