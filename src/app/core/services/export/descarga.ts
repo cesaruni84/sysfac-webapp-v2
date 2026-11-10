@@ -1,3 +1,6 @@
+/** Espera antes de revocar la URL del blob (igual que FileSaver). */
+export const REVOCAR_URL_MS = 40_000;
+
 /**
  * Descarga un `Blob` como archivo, sin `file-saver`
  * (`URL.createObjectURL` + `<a download>` + `revokeObjectURL`).
@@ -11,8 +14,9 @@ export function descargarArchivo(blob: Blob, nombre: string): void {
   document.body.appendChild(enlace);
   enlace.click();
   document.body.removeChild(enlace);
-  // Se difiere para no cancelar la descarga en navegadores lentos.
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  // Se difiere 40 s, como FileSaver (usado por v1): revocar antes puede cancelar la descarga
+  // en Safari/Firefox.
+  setTimeout(() => URL.revokeObjectURL(url), REVOCAR_URL_MS);
 }
 
 export const MIME_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';

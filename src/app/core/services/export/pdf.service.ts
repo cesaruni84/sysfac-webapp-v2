@@ -1,5 +1,7 @@
+import { formatDate, formatNumber } from '@angular/common';
 import { Injectable } from '@angular/core';
 import type { jsPDF } from 'jspdf';
+import type { RowInput, Table } from 'jspdf-autotable';
 import type { FechaApi, GuiaRemision, GuiasRemisionPDF } from '../../models';
 import { descargarArchivo } from './descarga';
 
@@ -36,6 +38,9 @@ export interface LiquidacionPdfDatos {
   totalImporte: number;
 }
 
+/** `jsPDF` tras `autoTable`: el plugin deja la última tabla en `lastAutoTable`. */
+type jsPDFConAutoTable = jsPDF & { lastAutoTable?: Table };
+
 export const PDF_LIQUIDACION = { prefijoArchivo: 'ReporteLiquidacion_', extension: '_.pdf' } as const;
 
 /** Columnas de la tabla de guías (idénticas a v1). */
@@ -51,30 +56,25 @@ export const COLUMNAS_PDF_LIQUIDACION = [
   { header: 'Sub Total', dataKey: 'subTotal' },
 ] as const;
 
-/** `datePipe.transform(x, 'dd/MM/yyyy')` de v1 (vacío si no hay fecha). */
+/**
+ * `datePipe.transform(x, 'dd/MM/yyyy')` de v1 (vacío si no hay fecha). Usa `formatDate` con
+ * `en-US`, el `LOCALE_ID` por defecto con que v1 resolvía el pipe.
+ */
 export function formatearFecha(valor: FechaApi | null | undefined): string {
   if (valor === null || valor === undefined || valor === '') {
     return '';
   }
-  let fecha: Date;
-  if (typeof valor === 'string') {
-    // Igual que DatePipe: 'yyyy-MM-dd' se interpreta como fecha local, no UTC.
-    const solo = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valor);
-    fecha = solo ? new Date(+solo[1], +solo[2] - 1, +solo[3]) : new Date(valor);
-  } else {
-    fecha = valor;
-  }
-  if (isNaN(fecha.getTime())) {
+  try {
+    return formatDate(valor, 'dd/MM/yyyy', 'en-US');
+  } catch {
+    // Fecha inválida: se deja vacío en lugar de romper la generación del PDF.
     return '';
   }
-  const dd = String(fecha.getDate()).padStart(2, '0');
-  const mm = String(fecha.getMonth() + 1).padStart(2, '0');
-  return `${dd}/${mm}/${fecha.getFullYear()}`;
 }
 
-/** `DecimalPipe` con formato `1.2-2` (locale en-US, el predeterminado de v1). */
+/** `DecimalPipe` con formato `1.2-2` de v1 (locale `en-US`). */
 export function formatearDecimal(valor: number): string {
-  return valor.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return formatNumber(valor, 'en-US', '1.2-2');
 }
 
 /** Símbolo de moneda según el combo de v1 (`'1'` = dólares). */
@@ -98,6 +98,7 @@ function agruparPor<T, K>(lista: T[], clave: (item: T) => K): Map<K, T[]> {
 }
 
 function sumar(valores: (number | undefined)[]): number {
+  // `as number` reproduce v1 ante datos faltantes: `undefined` produce NaN, no se rellena con 0.
   return valores.reduce<number>((acc, valor) => acc + (valor as number), 0);
 }
 
@@ -211,7 +212,8 @@ export class PdfService {
       etiqueta('INSUMO :', pageWidth * 0.7, initialMarginY);
       valor(guiasDelGrupo[0].guiaDetalle?.[0]?.producto?.nombre ?? '', pageWidth * 0.76, initialMarginY);
 
-      // Formateo de campos
+      // Formateo de campos. Los `as number` reproducen v1: si falta el dato, `.toFixed` lanza
+      // igual que allí (no se rellena con 0).
       const lista: GuiasRemisionPDF[] = guiasDelGrupo.map((guia, i) => ({
         id: i + 1,
         fechaTraslado: String(guia.fechaTraslado),
@@ -228,7 +230,7 @@ export class PdfService {
       // Tabla por origen-destino
       autoTable(documento, {
         columnStyles: { id: { halign: 'center' }, text: { cellWidth: 'auto' } },
-        body: lista as unknown as Record<string, string | number | undefined>[],
+        body: lista as RowInput[],
         styles: { overflow: 'ellipsize', cellWidth: 'wrap', fontSize: 8 },
         theme: 'striped',
         startY: initialMarginY + 7,
@@ -239,7 +241,7 @@ export class PdfService {
 
       const totalCantidad = sumar(guiasDelGrupo.map((t) => t.totalCantidad));
       const totalImportes = sumar(guiasDelGrupo.map((t) => t.subTotal));
-      const ultimaTabla = (documento as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
+      const ultimaTabla = (documento as jsPDFConAutoTable).lastAutoTable;
       initialMarginY = (ultimaTabla?.finalY ?? initialMarginY) + 10;
       documento.setTextColor(0, 0, 255);
       etiqueta('TOTAL CANTIDAD :', pageWidth * 0.52, initialMarginY);

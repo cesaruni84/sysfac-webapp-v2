@@ -171,7 +171,9 @@ describe('ExcelService', () => {
 
       expect(crear).toHaveBeenCalledTimes(1);
       expect(click).toHaveBeenCalledTimes(1);
-      vi.runAllTimers();
+      vi.advanceTimersByTime(39_999);
+      expect(revocar).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
       expect(revocar).toHaveBeenCalledWith('blob:fake');
       click.mockRestore();
       vi.unstubAllGlobals();
