@@ -49,15 +49,19 @@ export function iniciales(usuario: Usuario | null): string {
         />
       </span>
       <span class="hidden lg:inline-flex">
-        <p-button
-          icon="pi pi-bars"
+        <!-- Botón nativo con pButton: p-button no expone aria-expanded en PrimeNG 21. -->
+        <button
+          pButton
+          type="button"
           [text]="true"
           [rounded]="true"
           severity="secondary"
-          [ariaLabel]="sidebarAbierto() ? 'Ocultar menú lateral' : 'Mostrar menú lateral'"
-          [buttonProps]="{ 'aria-expanded': sidebarAbierto() }"
-          (onClick)="alternarSidebar.emit()"
-        />
+          [attr.aria-label]="sidebarAbierto() ? 'Ocultar menú lateral' : 'Mostrar menú lateral'"
+          [attr.aria-expanded]="sidebarAbierto()"
+          (click)="alternarSidebar.emit()"
+        >
+          <i pButtonIcon class="pi pi-bars"></i>
+        </button>
       </span>
 
       <span class="min-w-0 flex-1 truncate text-base sm:text-[17px]" data-testid="header-empresa">

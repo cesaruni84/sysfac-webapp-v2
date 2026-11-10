@@ -20,7 +20,7 @@ describe('authErrorInterceptor', () => {
   let avisos: Notificacion[];
 
   /** Hace un GET que falla con `status` y devuelve el status propagado. */
-  function fallarCon(status: number, body: unknown = { codeMessage: 'E1' }): number {
+  function fallarCon(status: number, body: object | null = { codeMessage: 'E1' }): number {
     let propagado = -1;
     http.get('/api/x').subscribe({ error: (e) => (propagado = e.status) });
     const req = ctrl.expectOne('/api/x');
