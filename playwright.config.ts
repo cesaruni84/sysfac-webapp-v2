@@ -10,7 +10,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Credenciales opcionales (nunca en el repo): E2E_USER, E2E_PASS y E2E_EMPRESA.
  * Las pruebas son SOLO DE LECTURA: no crean, modifican ni eliminan datos.
  */
-const baseURL = process.env['BASE_URL'] ?? 'http://localhost:4200';
+const baseURL = process.env['BASE_URL'] ?? 'http://localhost:4300';
 
 export default defineConfig({
   testDir: './e2e',
@@ -28,8 +28,8 @@ export default defineConfig({
   webServer: process.env['BASE_URL']
     ? undefined
     : {
-        command: 'npx ng serve --port 4200',
-        url: 'http://localhost:4200',
+        command: 'npx ng serve',
+        url: 'http://localhost:4300',
         reuseExistingServer: true,
         timeout: 180_000,
       },
