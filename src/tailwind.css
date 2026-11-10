@@ -1,0 +1,9 @@
+/*
+ * Entrada de Tailwind CSS 4 (CSS plano, sin Sass, como recomienda Tailwind).
+ * `tailwindcss-primeui` agrega utilidades ligadas a los tokens de PrimeNG
+ * (text-primary, bg-surface-100, text-muted-color, etc.).
+ */
+@layer theme, base, primeng, components, utilities;
+
+@import 'tailwindcss';
+@import 'tailwindcss-primeui';
