@@ -7,7 +7,7 @@ Actualizarlo en su lugar exigiría 16 saltos de versión mayor de Angular, con m
 
 **Decisión:** reconstruir el frontend en `D:\Personal\Proyectos\Facturacion\nueva_version\sysfac-webapp-v2`. Ya es un proyecto Angular 22.2 recién generado, con componentes standalone, `@angular/build`, Vitest, TypeScript 6, RxJS 7.8 y `strict` activo; todavía no es repositorio git.
 La lógica de negocio (modelos, servicios y pantallas) se **porta** desde v1, que queda en producción como referencia hasta el cambio final.
-El despliegue de v2 se hace en **Cloudflare Pages**: es gratuito, con ancho de banda ilimitado, vista previa por PR y Web Analytics incluido. La captura de errores de JavaScript con **Sentry** se agrega en la Fase 5, antes de la salida a producción.
+El despliegue de v2 se hace en **Cloudflare Pages**: es gratuito, con ancho de banda ilimitado, vista previa por PR y Web Analytics incluido. El despliegue en Cloudflare y la captura de errores de JavaScript con **Sentry** se montan en la Fase 5, antes de la salida a producción. Hasta entonces, cada oleada se valida **en local** (`ng serve` en `http://localhost:4300`) y GitHub Actions solo ejecuta CI (lint, test y build).
 **Fuera de alcance:** el desarrollo del backend. Solo se coordinan HTTPS y CORS con quien lo mantenga.
 
 ### Criterios de complejidad
@@ -16,15 +16,15 @@ El despliegue de v2 se hace en **Cloudflare Pages**: es gratuito, con ancho de b
 - **Alta:** lógica de negocio crítica o pantallas grandes (más de 900 líneas en v1); más de 3 días, con riesgo alto.
 
 ## Arquitectura por capas
-El desarrollo se organiza por capas. Las capas base se construyen **una vez y de forma horizontal**: infraestructura, core y diseño. Las pantallas se construyen después **en cortes verticales**, una funcionalidad completa a la vez, apoyadas en esas bases. El despliegue **no** es la última capa: el pipeline se monta al inicio y cada PR se publica en una vista previa; al final solo queda el cambio a producción.
+El desarrollo se organiza por capas. Las capas base se construyen **una vez y de forma horizontal**: infraestructura, core y diseño. Las pantallas se construyen después **en cortes verticales**, una funcionalidad completa a la vez, apoyadas en esas bases. El CI (lint, test y build) se monta al inicio y corre en cada push y PR. Durante el desarrollo, cada oleada se revisa en local. El despliegue en Cloudflare Pages (vistas previas y producción) se monta en la Fase 5, antes del cambio a producción.
 
 | Capa | Carpeta en v2 | Contenido | Puede depender de | Fase |
 |---|---|---|---|---|
-| **Infraestructura** | raíz, `.github/`, `public/`, `src/environments/`, `src/app/app.config.ts` | repo, tooling (ESLint, Vitest, Playwright), environments, CI/CD con Cloudflare, `_headers`, Web Analytics | — | 0 y 1 |
+| **Infraestructura** | raíz, `.github/`, `public/`, `src/environments/`, `src/app/app.config.ts` | repo, tooling (ESLint, Vitest, Playwright), environments, CI con GitHub Actions, ejecución local, `_headers` | — | 0 y 1 |
 | **Core** | `src/app/core/` (`models/`, `services/`, `auth/`, `interceptors/`, `domain/`) | contratos con el backend, servicios HTTP, autenticación, manejo de errores, exportación Excel/PDF, validadores y **reglas de negocio puras** (`domain/`: cálculo de importes e impuestos) | Infraestructura | 2 |
 | **Diseño** | `src/app/shared/ui/`, `src/app/layout/`, tema | tokens, layout y componentes reutilizables sobre PrimeNG; no contiene lógica de negocio | Core (tipos y servicios de exportación Excel/PDF, que usa la tabla genérica de 3.3) | 3 |
 | **Funcionalidades** | `src/app/features/<modulo>/` | pantallas de negocio, cada una con su `<modulo>.routes.ts` | Core y Diseño; **nunca** otra feature | 4 |
-| **Producción** | — | validación contra v1, observabilidad de errores (Sentry), cambio de dominio, retiro de v1 y rendimiento | todas | 5 |
+| **Producción** | `.github/`, `public/` | despliegue en Cloudflare Pages, Web Analytics, coordinación con el backend, validación contra v1, observabilidad de errores (Sentry), cambio de dominio, retiro de v1 y rendimiento | todas | 5 |
 
 Reglas de dependencia, que se verifican en el lint (tarea 2.7):
 - `core` no importa nada de `shared/ui`, `layout` ni `features`.
@@ -67,17 +67,17 @@ No se portan: las demos de Egret (`app-calendar`, `app-chats`, `app-inbox`, `sho
 | 0.6 | Escribir el checklist de flujos críticos usando v1 como referencia: login, guías, liquidación, facturación, maestros y exportaciones | Baja |
 | 0.7 | Crear pruebas e2e de humo con Playwright, parametrizadas por URL, que se ejecuten primero contra v1 y luego contra v2 | Media |
 
-## Fase 1: Capa de infraestructura, pipeline y despliegue continuo en Cloudflare Pages
-Va temprano, para tener una URL de vista previa desde el primer PR.
+## Fase 1: Capa de infraestructura, CI y ejecución local
+El despliegue en Cloudflare Pages se movió a la Fase 5: las tareas 1.1, 1.2b, 1.4, 1.5 y 1.6 están en esa fase y conservan su ID. Hasta entonces, todo se ejecuta y se valida en local:
+- **v2:** `npx ng serve` en `http://localhost:4300` (puerto fijo en `angular.json`). Solo el orquestador ejecuta `ng serve`.
+- **v1 (referencia):** su propio `ng serve` en `http://localhost:4200`.
+- **Backend:** local, en `http://localhost:8443/v1/sisyfac/api` (los tres `environment.*.ts`). Su CORS debe permitir `http://localhost:4300`.
+- **e2e:** `npx playwright test` contra v2 local, o `BASE_URL=http://127.0.0.1:4200 npx playwright test` contra v1.
 
 | ID | Tarea | Complejidad |
 |---|---|---|
-| 1.1 | En Cloudflare: crear el proyecto de Pages `sysfac-webapp-v2` en modo *Direct Upload* y un API token con permiso **Cloudflare Pages: Edit**. En GitHub: crear los secrets `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` | Baja |
-| 1.2 | Crear el workflow `.github/workflows/deploy.yml`. Pasos: `actions/checkout@v4`, Node 22, `npm ci`, `ng lint`, `ng test`, `ng build` (con la configuración `production` en `main` y `staging` en el resto), y luego `cloudflare/wrangler-action@v3` con `pages deploy dist/sysfac-webapp-v2/browser --project-name=sysfac-webapp-v2 --branch=${{ github.head_ref \|\| github.ref_name }}`. Disparadores: push a `main` (producción), y push a `develop`, a `wave/*` o PR (vista previa) | Media |
-| 1.3 | Enrutamiento SPA: confirmar que Pages devuelve `index.html` en rutas profundas (no debe existir `404.html` en el build). Agregar `public/_headers` con: cabeceras de seguridad (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` y una CSP básica que permita la URL del backend; el dominio de Sentry se agrega en 5.5); caché `immutable` para los `*.js` y `*.css` con hash, y `no-cache` para `index.html`. Para que la CSP no necesite scripts inline, `inlineCritical` está desactivado en las configuraciones `production` y `staging` de `angular.json` | Baja |
-| 1.4 | Dominio propio: asociar el dominio al proyecto (DNS en Cloudflare o un CNAME). El HTTPS es automático. Mientras tanto se usa `sysfac-webapp-v2.pages.dev` | Baja |
-| 1.5 | Observabilidad básica: activar **Cloudflare Web Analytics** en el proyecto de Pages (visitas, Core Web Vitals). Sentry se integra después, en 5.5 | Baja |
-| 1.6 | Coordinación con el backend: que el API use HTTPS (si no, el navegador bloquea las llamadas por contenido mixto) y que su CORS permita el dominio de producción y `https://*.sysfac-webapp-v2.pages.dev` | Baja |
+| 1.2 | Crear el workflow de CI `.github/workflows/ci.yml`. Pasos: `actions/checkout@v4`, Node 22, `npm ci`, `ng lint`, `ng test` y `ng build` (con la configuración `production` en `main` y `staging` en el resto). Disparadores: push a `main`, `develop` y `wave/**`, y PR. No despliega: el despliegue se agrega en 1.2b (Fase 5) | Media |
+| 1.3 | Preparar `public/_headers` para Cloudflare Pages: cabeceras de seguridad (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` y una CSP básica que permita la URL del backend; el dominio de Sentry se agrega en 5.5); caché `immutable` para los `*.js` y `*.css` con hash, y `no-cache` para `index.html`. El build no debe generar `404.html`, para que Pages sirva `index.html` en las rutas profundas. Para que la CSP no necesite scripts inline, `inlineCritical` está desactivado en las configuraciones `production` y `staging` de `angular.json`. Fuera de Cloudflare el archivo no tiene efecto; su verificación se hace en 1.2b | Baja |
 
 ## Fase 2: Capa core (portar desde v1)
 
@@ -101,7 +101,7 @@ Va temprano, para tener una URL de vista previa desde el primer PR.
 | 3.4 | Layout de autenticación y páginas 404 y de error. La pantalla de login es una funcionalidad y va en 4.1 | Baja |
 
 ## Fase 4: Capa de funcionalidades: pantallas de negocio rehechas en PrimeNG, con v1 como referencia funcional
-Patrón para cada pantalla (corte vertical): componente standalone en `src/app/features/<modulo>/`, carga diferida por ruta, Reactive Forms tipados, signals para el estado y Tailwind para el layout. La pantalla usa los servicios de `core` y los componentes de `shared/ui`. Si necesita una regla de negocio nueva (por ejemplo un cálculo), esa regla va en `core/domain` con sus pruebas unitarias, no dentro del componente. Luego se pasa el checklist y el e2e, se abre un PR y se revisa la vista previa en Cloudflare.
+Patrón para cada pantalla (corte vertical): componente standalone en `src/app/features/<modulo>/`, carga diferida por ruta, Reactive Forms tipados, signals para el estado y Tailwind para el layout. La pantalla usa los servicios de `core` y los componentes de `shared/ui`. Si necesita una regla de negocio nueva (por ejemplo un cálculo), esa regla va en `core/domain` con sus pruebas unitarias, no dentro del componente. Luego se pasa el checklist y el e2e, se integra en `wave/ola-<n>` y se revisa en local (`ng serve` en `http://localhost:4300`).
 
 | ID | Pantalla | Complejidad | Motivo |
 |---|---|---|---|
@@ -118,10 +118,16 @@ Patrón para cada pantalla (corte vertical): componente standalone en `src/app/f
 | 4.11 | Registro de liquidación | **Alta** | Edición en línea, carga de Excel, cálculos |
 | 4.12 | Registro de factura | **Alta** | Stepper, importes e impuestos, relación con guías; es el flujo más crítico |
 
-## Fase 5: Producción (salida y cierre)
+## Fase 5: Producción (despliegue, salida y cierre)
+Las tareas 1.x de esta fase vienen de la Fase 1 y conservan su ID. Van primero porque 5.5 (source maps desde el workflow) y 5.1 (validación en `staging`) necesitan el despliegue funcionando.
 
 | ID | Tarea | Complejidad |
 |---|---|---|
+| 1.1 | En Cloudflare: crear el proyecto de Pages `sysfac-webapp-v2` en modo *Direct Upload*, con `main` como rama de producción, y un API token con permiso **Cloudflare Pages: Edit**. En GitHub: crear los secrets `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` | Baja |
+| 1.2b | Agregar el despliegue al workflow `ci.yml`: `cloudflare/wrangler-action@v3` con `pages deploy dist/sysfac-webapp-v2/browser --project-name=sysfac-webapp-v2 --branch=${{ github.head_ref \|\| github.ref_name }}` y permiso `deployments: write`. Un push a `main` publica en producción; `develop`, `wave/**` y los PR publican una vista previa en `https://<rama>.sysfac-webapp-v2.pages.dev`. Verificar que las rutas profundas cargan al recargar y que se aplica `_headers` (1.3) | Baja |
+| 1.4 | Dominio propio: asociar el dominio al proyecto (DNS en Cloudflare o un CNAME). El HTTPS es automático. Mientras tanto se usa `sysfac-webapp-v2.pages.dev` | Baja |
+| 1.5 | Observabilidad básica: activar **Cloudflare Web Analytics** en el proyecto de Pages (visitas, Core Web Vitals) | Baja |
+| 1.6 | Coordinación con el backend: hoy es local (`http://localhost:8443`). Antes de desplegar se necesita una URL pública con HTTPS (si no, el navegador bloquea las llamadas por contenido mixto) y un CORS que permita el dominio de producción y `https://*.sysfac-webapp-v2.pages.dev`. Al tenerla, actualizar `environment.ts`, `environment.staging.ts` y el `connect-src` de `public/_headers` | Baja |
 | 5.5 | **Sentry**, antes de 5.1 para capturar errores durante la validación: crear la cuenta y el proyecto Angular en sentry.io (lo hace el usuario); instalar `@sentry/angular` y configurar `ErrorHandler` y tracing en `app.config.ts`, con el DSN en `environments`; agregar el dominio de Sentry a la CSP de `public/_headers`; subir los source maps desde el workflow con `getsentry/action-release` (secret `SENTRY_AUTH_TOKEN`), usando el SHA del commit como versión, y no publicar los `.map` en Pages. Lo hace el orquestador, porque toca archivos compartidos | Media |
 | 5.1 | Validación en paralelo: usuarios clave trabajan en el entorno `staging` (vista previa de `develop`) con datos reales; para guías, liquidación y factura se compara el JSON enviado al backend y los PDF/Excel generados contra v1 | Media |
 | 5.2 | Cambio final: merge a `main`, despliegue de producción en Cloudflare y apuntar el dominio a Pages. v1 sigue en Firebase como respaldo de 2 a 4 semanas | Baja |
@@ -130,12 +136,12 @@ Patrón para cada pantalla (corte vertical): componente standalone en `src/app/f
 
 ---
 
-## Resumen por complejidad (41 tareas)
-- **Baja (24):** 0.1–0.6, 1.1, 1.3, 1.4, 1.5, 1.6, 2.1, 2.5, 2.6, 2.7, 3.1, 3.4, 4.1–4.4, 5.2, 5.3, 5.4
+## Resumen por complejidad (42 tareas)
+- **Baja (25):** 0.1–0.6, 1.1, 1.2b, 1.3, 1.4, 1.5, 1.6, 2.1, 2.5, 2.6, 2.7, 3.1, 3.4, 4.1–4.4, 5.2, 5.3, 5.4
 - **Media (12):** 0.7, 1.2, 2.2, 2.3, 2.4, 4.5–4.9, 5.5, 5.1
 - **Alta (5):** 3.2 (layout), 3.3 (`shared/ui`), 4.10 (guías), 4.11 (liquidación), 4.12 (factura)
 
-Orden recomendado: Fase 0 → Fase 1 (despliegue funcionando con una página vacía) → 2 → 3 → 4 (de Baja a Alta) → 5.
+Orden recomendado: Fase 0 → Fase 1 (CI y ejecución local con una página vacía) → 2 → 3 → 4 (de Baja a Alta) → 5 (primero el despliegue en Cloudflare, luego la salida a producción).
 
 ## Orquestación con agentes
 
@@ -147,7 +153,7 @@ Bastan **dos definiciones de agente** (DevMid y DevSenior) y el orquestador; no 
 
 | Rol | Definición | Modelo | Tareas |
 |---|---|---|---|
-| **Orquestador** (sesión abierta en v2, ver regla 11) | — | Opus | Fase 0, Fase 1, tareas que tocan archivos compartidos, asignación, revisión, merge y reporte al usuario |
+| **Orquestador** (sesión abierta en v2, ver regla 11) | — | Opus | Fase 0, Fase 1, despliegue (1.1, 1.2b, 1.4–1.6), 5.5, tareas que tocan archivos compartidos, asignación, revisión, merge y reporte al usuario |
 | **DevSenior** | `.claude/agents/dev-senior.md` | Opus | 3.2, 3.3 (en secuencia, sin paralelo), 4.10, 4.11, 4.12 y revisión de los PR de DevMid antes del merge |
 | **DevMid** | `.claude/agents/dev-mid.md` | Sonnet | 2.1–2.6, 3.4, 4.1–4.9 y 5.4 |
 
@@ -171,25 +177,25 @@ Bastan **dos definiciones de agente** (DevMid y DevSenior) y el orquestador; no 
 ### Ejecución por oleadas
 | Oleada | Tareas | Quién | Paralelo |
 |---|---|---|---|
-| 1 | Fase 0, Fase 1, stubs de rutas y 2.7 (reglas de capas) | Orquestador | No |
+| 1 | Fase 0, Fase 1 (1.2 CI y 1.3 `_headers`), stubs de rutas y 2.7 (reglas de capas) | Orquestador | No |
 | 2 | 2.1 → (2.2, 2.3, 2.4) y (2.5, 2.6) | DevMid | Hasta 3 |
 | 3 | 3.1, 3.2 → 3.3 | Orquestador / DevSenior | No |
 | 4 | 3.4, 4.1, 4.2, 4.3 | DevMid | Hasta 3 |
 | 5 | 4.4, 4.5, 4.6 | DevMid | Hasta 3 |
 | 6 | 4.7, 4.8, 4.9 | DevMid | Hasta 3 |
 | 7 | 4.10 → 4.11 → 4.12 | DevSenior + usuario | No |
-| 8 | Fase 5: 5.5 (Sentry) → 5.1 → 5.2 → 5.3, y 5.4 | Orquestador (5.4: DevMid) | No |
+| 8 | Fase 5: despliegue (1.1 → 1.2b → 1.4, 1.5 y 1.6) → 5.5 (Sentry) → 5.1 → 5.2 → 5.3, y 5.4 | Orquestador + usuario (5.4: DevMid) | No |
 
 Cada oleada termina con un punto de control y la siguiente **no empieza** hasta que el usuario la confirme.
 
 ### Punto de control por oleada (confirmación manual obligatoria)
 1. **Integración:** el orquestador crea `wave/ola-<n>` desde `develop` y fusiona ahí las ramas de la oleada, ya revisadas por DevSenior.
-2. **Validación automática:** se ejecutan `lint`, `test` y `build` sobre `wave/ola-<n>`, y el pipeline publica la vista previa en `https://wave-ola-<n>.sysfac-webapp-v2.pages.dev`.
+2. **Validación automática:** se ejecutan `lint`, `test` y `build` sobre `wave/ola-<n>` y la suite e2e contra v2 local. Luego se sirve la rama con `ng serve` en `http://localhost:4300` para la revisión manual. Al subir `wave/ola-<n>` a GitHub, el CI repite `lint`, `test` y `build`.
 3. **Resumen para el usuario**, con:
    - las tareas completadas (ID y descripción);
    - los archivos tocados por cada agente;
-   - los resultados de lint, test y build;
-   - la URL de la vista previa;
+   - los resultados de lint, test, build, e2e y CI;
+   - cómo revisar la oleada en local (URL y rutas a probar);
    - la lista de qué probar manualmente en esa oleada;
    - los pendientes y las observaciones.
 4. **Pausa:** el orquestador se detiene y espera la respuesta del usuario. No lanza agentes ni fusiona nada mientras tanto.
@@ -198,21 +204,27 @@ Cada oleada termina con un punto de control y la siguiente **no empieza** hasta 
    - **Pide cambios:** el orquestador relanza al agente correspondiente con las observaciones, vuelve a integrar en `wave/ola-<n>` y repite el punto de control.
    - **Rechaza:** `develop` queda intacto y se replanifica la oleada con el usuario.
 
-Para la oleada 1, en la que todavía no existe el pipeline, el punto de control se hace con el build local y `ng serve` de la rama `wave/ola-1`. Para la oleada 8, la confirmación del usuario es además la autorización del cambio de dominio a producción (tarea 5.2).
+De la oleada 1 a la 7, el punto de control es local. En la oleada 8, una vez montado el despliegue (1.2b), la revisión se hace sobre la vista previa de Cloudflare (`https://wave-ola-8.sysfac-webapp-v2.pages.dev`), y la confirmación del usuario es además la autorización del cambio de dominio a producción (tarea 5.2).
 
 ## Verificación
-- Al cerrar cada oleada: confirmación manual del usuario sobre la vista previa de `wave/ola-<n>` antes de fusionar en `develop`.
-- En cada PR: el workflow pasa `lint`, `test` y `build` y publica una vista previa en `https://<rama>.sysfac-webapp-v2.pages.dev`.
-- En la vista previa: se pasa el checklist de 0.6 y la suite Playwright de 0.7 con `BASE_URL` apuntando a la vista previa.
-- Despliegue: las rutas profundas (por ejemplo `/forms/facturacion/consulta`) cargan al recargar la página; `_headers` se aplica (verificable en DevTools → Network) y Web Analytics registra visitas.
+- Al cerrar cada oleada: confirmación manual del usuario sobre `wave/ola-<n>` servida en local (`http://localhost:4300`) antes de fusionar en `develop`.
+- En cada push y PR: el CI de GitHub pasa `lint`, `test` y `build`.
+- En local: se pasa el checklist de 0.6 y la suite Playwright de 0.7 contra v2 (`http://localhost:4300`) y, como referencia, contra v1 (`http://127.0.0.1:4200`).
+- Después de 1.2b (Fase 5): cada push publica una vista previa en `https://<rama>.sysfac-webapp-v2.pages.dev`; las rutas profundas (por ejemplo `/forms/facturacion/consulta`) cargan al recargar la página; `_headers` se aplica (verificable en DevTools → Network); Web Analytics registra visitas; y la suite Playwright pasa con `BASE_URL` apuntando a la vista previa.
 - Después de 5.5: un error de prueba lanzado en la vista previa aparece en Sentry con el stack trace legible y la versión (SHA) correcta.
 - Antes del cambio final: los JSON, PDF y Excel de v2 coinciden con los de v1 con los mismos datos de entrada (tarea 5.1).
 
 ## Riesgos
 - Que PrimeNG no soporte todavía Angular 22: se mitiga con la tarea 0.2.
-- Que el backend no use HTTPS o no tenga CORS configurado: bloquea todo el despliegue, así que hay que coordinarlo al inicio (1.6).
+- Que el backend no tenga una URL pública con HTTPS ni CORS configurado: bloquea el despliegue de la Fase 5, así que hay que coordinarlo con tiempo, antes de llegar a esa fase (1.6). Durante el desarrollo, el backend local debe permitir `http://localhost:4300` en su CORS.
+- Que algo funcione en local y falle en Cloudflare (rutas profundas, `_headers`, CSP): se detecta recién en 1.2b; por eso 1.2b va al inicio de la oleada 8, antes de 5.5 y 5.1.
 - Diferencias de comportamiento al rehacer pantallas: por eso existe 5.1, con validación en paralelo, y v1 se mantiene como respaldo.
 - Hay dos sesiones de Claude abiertas sobre v1 y v2: conviene trabajar v2 desde una sola sesión para evitar conflictos.
 
-## Entregable
-Una vez aprobado, actualizar `sysfac-webapp-v2/MIGRATION.md` con este plan. Sentry pasa de la tarea 1.5 a la nueva tarea 5.5. No se modifica nada más: ni `CLAUDE.md`, ni los agentes, ni el código.
+## Historial de cambios del plan
+Cambios aprobados por el usuario (regla 6 de `CLAUDE.md`):
+1. Sentry pasa de la tarea 1.5 a la nueva tarea 5.5.
+2. Las ramas de integración se llaman `wave/ola-<n>`.
+3. Tailwind va en `src/tailwind.css` (0.3); `inlineCritical` queda desactivado (1.3); la capa *Diseño* puede usar los servicios de exportación de Core.
+4. El servidor de desarrollo de v2 usa el puerto 4300 (v1 sigue en el 4200).
+5. El despliegue en Cloudflare (1.1, la parte de despliegue de 1.2 como 1.2b, 1.4, 1.5 y 1.6) pasa a la Fase 5. Hasta entonces, la validación es local y el workflow solo hace CI (`ci.yml`).
