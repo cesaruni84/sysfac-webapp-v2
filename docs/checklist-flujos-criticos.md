@@ -182,6 +182,22 @@ Repetir para cada maestro: **Plantas** (`factorias`), **Tarifas**, **Choferes**,
 | 8.8 | DevTools → Network → `index.html` | Llegan las cabeceras de `_headers` (CSP, `X-Frame-Options`, `Cache-Control: no-cache`) | |
 | 8.9 | Cloudflare Web Analytics | Registra la visita | |
 
+## Diferencias intencionadas con v1
+
+Son cambios aprobados durante la migración. Si v1 y v2 difieren en estos puntos, **no** es una regresión: marcar `—` y no anotarlo como falla.
+
+| Flujo / # | v1 | v2 | Origen |
+|---|---|---|---|
+| 3.17 Eliminar guía | La guía eliminada seguía apareciendo en la grilla hasta recargar (cache sin invalidar) | Desaparece de inmediato | 2.2 (sin `ngx-cacheable`) |
+| 1.9 Ruta privada sin sesión | Redirige al login | Igual; además, un 401 del backend limpia la sesión y redirige al login (sin `returnUrl`) | 2.3 |
+| 1.8 Sesión entre pestañas | Cada pantalla lee `localStorage` | El header refleja el login o logout hecho en otra pestaña | 2.3 |
+| 5.x Diálogo "Liquidaciones por facturar" (4.12) | Si se escribe un nro. de liquidación y luego se borra, busca `nroDocLiq=000000000000` | Busca con `nroDocLiq=` vacío (todas) | 2.5 |
+| RUC del cliente y nro. de documento de la factura | Permitía escribir `.` | Solo acepta dígitos | 2.5 |
+| Exportar con datos incompletos (tipo o estado desconocido, fecha inválida) | La exportación fallaba por completo | Genera el archivo con `?` o la celda vacía | 2.4 |
+| 8.2 Menú "Usuarios" | Ítem sin enlace (no navegaba) | Enlaza a `/profile` | 2.6 |
+| 8.2 Menú "Factura Electrónica" | Enlazaba a una página 404 | Aparece deshabilitado | 2.6 |
+| 8.3 Breadcrumb | Toda pantalla de `/forms` mostraba "Guia de Remisión" enlazando a `/forms`; Auditoría decía "FACTURA CON ERRORES" | "Sección > Hoja" con los textos del menú; la sección no es un enlace | 2.6 |
+
 ## Observaciones
 
 | Flujo / # | Diferencia encontrada | Severidad | Acción |

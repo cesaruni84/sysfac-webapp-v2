@@ -3,10 +3,11 @@ import { Router, provideRouter, withComponentInputBinding } from '@angular/route
 import { RouterTestingHarness } from '@angular/router/testing';
 
 import { routes } from './app.routes';
+import { CURRENT_USER_KEY } from './core/auth';
+import { usuarioMock } from './core/auth/auth.testing';
 
-/** Todas las URLs de negocio de v1 deben resolver en v2. */
-const urlsDeV1: [url: string, titulo: string][] = [
-  ['/sessions/signin', 'Iniciar sesión'],
+/** URLs de negocio de v1 (privadas: protegidas por authGuard). */
+const urlsPrivadas: [url: string, titulo: string][] = [
   ['/dashboard', 'Principal'],
   ['/forms/basic', 'Registro de guías'],
   ['/forms/paging', 'Consulta de guías'],
@@ -27,16 +28,38 @@ const urlsDeV1: [url: string, titulo: string][] = [
 
 describe('app.routes', () => {
   beforeEach(() => {
+    localStorage.clear();
     TestBed.configureTestingModule({
       providers: [provideRouter(routes, withComponentInputBinding())],
     });
   });
 
-  it.each(urlsDeV1)('resuelve %s', async (url, titulo) => {
+  afterEach(() => localStorage.clear());
+
+  it('/sessions/signin es pública', async () => {
     const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl(url);
-    expect(TestBed.inject(Router).url).toBe(url);
-    expect(harness.routeNativeElement?.textContent).toContain(titulo);
+    await harness.navigateByUrl('/sessions/signin');
+    expect(TestBed.inject(Router).url).toBe('/sessions/signin');
+    expect(harness.routeNativeElement?.textContent).toContain('Iniciar sesión');
+  });
+
+  describe('con sesión', () => {
+    beforeEach(() => localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(usuarioMock)));
+
+    it.each(urlsPrivadas)('resuelve %s', async (url, titulo) => {
+      const harness = await RouterTestingHarness.create();
+      await harness.navigateByUrl(url);
+      expect(TestBed.inject(Router).url).toBe(url);
+      expect(harness.routeNativeElement?.textContent).toContain(titulo);
+    });
+  });
+
+  describe('sin sesión', () => {
+    it.each(urlsPrivadas.map(([url]) => url))('%s redirige al login', async (url) => {
+      const harness = await RouterTestingHarness.create();
+      await harness.navigateByUrl(url);
+      expect(TestBed.inject(Router).url).toBe('/sessions/signin');
+    });
   });
 
   it('redirige la raíz a /sessions/signin', async () => {

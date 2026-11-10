@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard } from './core/auth';
+
 /**
  * Rutas raíz de SYSFAC v2. Mantienen las mismas URLs que v1.
  *
@@ -8,7 +10,6 @@ import { Routes } from '@angular/router';
  *
  * Pendiente en oleadas posteriores:
  * - 3.2: envolver las rutas privadas con el componente de layout (shell).
- * - 2.3: proteger las rutas privadas con el guard funcional de autenticación.
  * - 3.4: páginas 404 y de error (la ruta comodín apuntará a la 404).
  */
 export const routes: Routes = [
@@ -18,7 +19,9 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes'),
   },
   {
+    // Rutas privadas: igual que v1 (app.routing.ts), el guard va en la ruta padre.
     path: '',
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
@@ -33,24 +36,30 @@ export const routes: Routes = [
         loadChildren: () => import('./features/mapa/mapa.routes'),
       },
       {
+        // Sin breadcrumb en `forms`: cada sección pone su propia miga (sin enlace,
+        // porque no tiene pantalla; ver construirBreadcrumb en core/navigation).
         path: 'forms',
         children: [
           {
             path: 'facturacion',
+            data: { breadcrumb: 'Facturación' },
             loadChildren: () => import('./features/facturacion/facturacion.routes'),
           },
           {
             path: 'configuracion',
+            data: { breadcrumb: 'Configuración' },
             loadChildren: () => import('./features/configuracion/configuracion.routes'),
           },
           // Guías (basic, paging) y liquidación (liquidacion, busquedaLiquidaciones)
           // cuelgan directamente de /forms, igual que en v1.
           {
             path: '',
+            data: { breadcrumb: 'Guías de Remisión' },
             loadChildren: () => import('./features/guias/guias.routes'),
           },
           {
             path: '',
+            data: { breadcrumb: 'Liquidación' },
             loadChildren: () => import('./features/liquidacion/liquidacion.routes'),
           },
         ],

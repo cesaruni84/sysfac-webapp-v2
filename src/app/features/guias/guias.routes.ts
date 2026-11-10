@@ -8,14 +8,14 @@ const routes: Routes = [
   {
     path: 'basic',
     title: 'Registro de guías | SYSFAC',
-    data: { title: 'Registro de guías', breadcrumb: 'Registro de guías' },
+    data: { title: 'Registro de guías', breadcrumb: 'Registro' },
     loadComponent: () =>
       import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
   },
   {
     path: 'paging',
     title: 'Consulta de guías | SYSFAC',
-    data: { title: 'Consulta de guías', breadcrumb: 'Consulta de guías' },
+    data: { title: 'Consulta de guías', breadcrumb: 'Consulta' },
     loadComponent: () =>
       import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
   },
