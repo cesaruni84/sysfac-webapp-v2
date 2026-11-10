@@ -33,6 +33,7 @@
               }
             ],
             "styles": [
+              "node_modules/@fontsource-variable/roboto/wght.css",
               "src/tailwind.css",
               "src/styles.scss"
             ]
