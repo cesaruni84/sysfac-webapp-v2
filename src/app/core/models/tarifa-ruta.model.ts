@@ -1,3 +1,4 @@
+import type { FechaApi } from './fecha';
 import type { Empresa } from './empresa.model';
 import type { Factoria } from './factoria.model';
 
@@ -14,8 +15,8 @@ export class TarifaRuta {
   id?: number;
   notas?: string;
   importe?: number;
-  fechaRegistro?: Date;
-  fechaActualiza?: Date;
+  fechaRegistro?: FechaApi;
+  fechaActualiza?: FechaApi;
   estado?: number;
   moneda?: number;
   origen?: Factoria;

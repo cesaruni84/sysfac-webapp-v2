@@ -1,3 +1,4 @@
+import type { FechaApi } from './fecha';
 import type { Balanza } from './balanza.model';
 import type { Chofer } from './chofer.model';
 import type { Empresa } from './empresa.model';
@@ -20,14 +21,14 @@ export class GuiaRemision {
   motivoTraslado?: number;
   tarifa?: number;
   subTotal?: number;
-  fechaRemision?: Date;
-  fechaTraslado?: Date;
-  fechaRecepcion?: Date;
+  fechaRemision?: FechaApi;
+  fechaTraslado?: FechaApi;
+  fechaRecepcion?: FechaApi;
   ticketBalanza?: string;
   serieCliente?: string;
   secuenciaCliente?: string;
-  fechaRegistro?: Date;
-  fechaActualiza?: Date;
+  fechaRegistro?: FechaApi;
+  fechaActualiza?: FechaApi;
   usuarioRegistro?: string;
   usuarioActualiza?: string;
   placaTracto?: string;
@@ -78,7 +79,7 @@ export interface GuiaRemisionReportExcel {
   id?: number;
   nroguia?: string;
   nroSecuencia?: string;
-  fechaEmision?: Date;
+  fechaEmision?: FechaApi;
   usuarioRegistra?: string;
   nroLiq?: string;
   ordenServicio?: string;

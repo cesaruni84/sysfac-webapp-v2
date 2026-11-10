@@ -1,3 +1,4 @@
+import type { FechaApi } from './fecha';
 import type { Factoria } from './factoria.model';
 
 export interface ErrorResponse {
@@ -13,6 +14,6 @@ export interface InfoResponse {
 export interface FiltrosGuiasLiq {
   origen: Factoria;
   destino: Factoria;
-  fechaIni: Date;
-  fechaFin: Date;
+  fechaIni: FechaApi;
+  fechaFin: FechaApi;
 }

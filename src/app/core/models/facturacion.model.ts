@@ -1,3 +1,4 @@
+import type { FechaApi } from './fecha';
 import type { Cliente } from './cliente.model';
 import type { Empresa } from './empresa.model';
 import type { GuiaRemision } from './guia-remision.model';
@@ -12,8 +13,8 @@ export class Documento {
   tipoDocumento?: number;
   serie?: string;
   secuencia?: string;
-  fechaEmision?: Date;
-  fechaVencimiento?: Date;
+  fechaEmision?: FechaApi;
+  fechaVencimiento?: FechaApi;
   nroOrden?: string;
   estado?: number;
   observacion?: string;
@@ -29,7 +30,7 @@ export class Documento {
   tipoOperacion?: number;
   tipoAfectacion?: number;
   envioSunat?: number;
-  fechaEnvioSunat?: Date;
+  fechaEnvioSunat?: FechaApi;
   estadoEnvioSunat?: number;
   observacionSunat?: string;
   file1Sunat?: string;

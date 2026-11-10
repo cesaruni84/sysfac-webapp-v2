@@ -1,3 +1,4 @@
+import type { FechaApi } from './fecha';
 import type { Cliente } from './cliente.model';
 import type { Empresa } from './empresa.model';
 import type { Liquidacion } from './liquidacion.model';
@@ -10,9 +11,9 @@ export class OrdenServicio {
   nroOrden?: string;
   situacion?: number;
   estado?: number;
-  fechaOrden?: Date;
-  fechaVencimiento?: Date;
-  fechaAprobacion?: Date;
+  fechaOrden?: FechaApi;
+  fechaVencimiento?: FechaApi;
+  fechaAprobacion?: FechaApi;
   lugarEntrega?: string;
   instrucciones?: string;
   glosa?: string;
@@ -24,8 +25,8 @@ export class OrdenServicio {
   importeTotal?: number;
   usuarioRegistro?: string;
   usuarioActualiza?: string;
-  fechaRegistro?: Date;
-  fechaActualiza?: Date;
+  fechaRegistro?: FechaApi;
+  fechaActualiza?: FechaApi;
   formaPago?: FormaPago;
   cliente?: Cliente;
   empresa?: Empresa;

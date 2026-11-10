@@ -14,8 +14,8 @@ export class Chofer {
   dni?: string;
   fechaRegistro?: string;
   fechaActualiza?: string;
-  certificado?: unknown;
-  licencia?: unknown;
+  certificado?: string;
+  licencia?: string;
   empresa?: Empresa;
   vehiculo?: Vehiculo;
 }

@@ -1,3 +1,4 @@
+import type { FechaApi } from './fecha';
 import type { Documento } from './facturacion.model';
 import type { Factoria } from './factoria.model';
 import type { GuiaRemision } from './guia-remision.model';
@@ -9,11 +10,11 @@ export class Liquidacion {
   id?: number;
   tipocod?: string;
   nrodoc?: string;
-  fechaEmision?: Date;
+  fechaEmision?: FechaApi;
   estado?: number;
   situacion?: number;
-  fecIniTraslado?: Date;
-  fecFinTraslado?: Date;
+  fecIniTraslado?: FechaApi;
+  fecFinTraslado?: FechaApi;
   glosa?: string;
   moneda?: number;
   totalCantidad?: number;
