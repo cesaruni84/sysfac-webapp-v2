@@ -7,8 +7,12 @@ type Entrada = string | number | null | undefined;
 
 /**
  * Solo digitos: elimina todo caracter que no sea 0-9. Reemplaza el filtro de
- * teclado `validaDigitos` de v1 (que solo dejaba pasar teclas 48-57, Backspace y
- * Supr) aplicandolo tambien a texto pegado.
+ * teclado `validaDigitos` de v1, aplicandolo tambien a texto pegado.
+ *
+ * Diferencia intencionada: en el evento `keypress` de v1, `keyCode 46` es el
+ * caracter `.` (no Supr), asi que v1 permitia escribir puntos (que `digits` luego
+ * marcaba como error; en `ruc` de `cliente-popup` y `numeroDocumento` de `wizard`,
+ * sin `digits`, podian grabarse). v2 es mas estricto: solo digitos.
  */
 export function soloDigitos(valor: Entrada): string {
   if (valor === null || valor === undefined) return '';
@@ -17,8 +21,13 @@ export function soloDigitos(valor: Entrada): string {
 
 /**
  * Completa con ceros a la izquierda hasta `longitud` (`pad` de v1). No trunca si
- * el valor ya es mas largo. Igual que v1 (`valor.toLowerCase()`), una cadena vacia
- * se devuelve vacia (los manejadores de v1 solo completan si hay texto).
+ * el valor ya es mas largo. Una cadena vacia se devuelve vacia.
+ *
+ * Todas las pantallas de v1 completan solo si hay texto, EXCEPTO
+ * `factura-pop-up.component.ts:145-150` (sin guarda): si el usuario borra el campo,
+ * v1 envia `000000000000` como `nroDocLiq` en `buscarLiquidacionesPorFacturar`.
+ * En v2 `completarCeros('')` devuelve `''` intencionadamente y la pantalla 4.12
+ * decide que enviar.
  */
 export function completarCeros(valor: Entrada, longitud: number): string {
   if (valor === null || valor === undefined) return '';

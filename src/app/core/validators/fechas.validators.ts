@@ -6,6 +6,10 @@ import { esVacio } from './util';
  * que usa `!/Invalid|NaN/.test(new Date(v).toString())`). Acepta `Date`, cadenas
  * ISO y marcas de tiempo. Un valor vacio es valido; combinar con `Validators.required`.
  *
+ * Pensado para valores `Date` de `p-datepicker`, no para texto `dd/mm/yyyy`:
+ * `new Date('05/12/2020')` se interpreta como 12 de mayo (mm/dd) y `'25/12/2020'`
+ * es invalido.
+ *
  * Error: `{ date: true }`.
  */
 export const fecha: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
