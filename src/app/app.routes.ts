@@ -36,24 +36,30 @@ export const routes: Routes = [
         loadChildren: () => import('./features/mapa/mapa.routes'),
       },
       {
+        // Sin breadcrumb en `forms`: cada sección pone su propia miga (sin enlace,
+        // porque no tiene pantalla; ver construirBreadcrumb en core/navigation).
         path: 'forms',
         children: [
           {
             path: 'facturacion',
+            data: { breadcrumb: 'Facturación' },
             loadChildren: () => import('./features/facturacion/facturacion.routes'),
           },
           {
             path: 'configuracion',
+            data: { breadcrumb: 'Configuración' },
             loadChildren: () => import('./features/configuracion/configuracion.routes'),
           },
           // Guías (basic, paging) y liquidación (liquidacion, busquedaLiquidaciones)
           // cuelgan directamente de /forms, igual que en v1.
           {
             path: '',
+            data: { breadcrumb: 'Guías de Remisión' },
             loadChildren: () => import('./features/guias/guias.routes'),
           },
           {
             path: '',
+            data: { breadcrumb: 'Liquidación' },
             loadChildren: () => import('./features/liquidacion/liquidacion.routes'),
           },
         ],

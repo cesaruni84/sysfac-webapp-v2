@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Route, Router, provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import type { MenuItem } from 'primeng/api';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -7,31 +7,6 @@ import { routes } from './app.routes';
 import { usuarioMock } from './core/auth/auth.testing';
 import { CURRENT_USER_KEY } from './core/auth/session.service';
 import { MENU_NEGOCIO, construirBreadcrumb } from './core/navigation';
-
-/**
- * Migas de sección que el orquestador añade a `app.routes.ts`. Se simulan aquí para que
- * la prueba sea independiente de ese cambio (con el cambio aplicado, es idempotente).
- */
-function conMigasDeSeccion(rs: Route[], enForms = false): Route[] {
-  // En /forms, los dos tramos '' con loadChildren son, en orden, guías y liquidación.
-  const seccionesVacias = ['Guías de Remisión', 'Liquidación'];
-  let vacios = 0;
-  return rs.map((r) => {
-    let breadcrumb: string | undefined;
-    if (enForms && r.path === 'facturacion') breadcrumb = 'Facturación';
-    else if (enForms && r.path === 'configuracion') breadcrumb = 'Configuración';
-    else if (enForms && r.path === '' && r.loadChildren) {
-      breadcrumb = seccionesVacias[vacios++];
-    }
-    return {
-      ...r,
-      ...(breadcrumb ? { data: { ...r.data, breadcrumb } } : {}),
-      ...(r.children
-        ? { children: conMigasDeSeccion(r.children, r.path === 'forms' || enForms) }
-        : {}),
-    };
-  });
-}
 
 function enlaces(items: readonly MenuItem[]): string[] {
   return items.flatMap((i) => [
@@ -43,7 +18,7 @@ function enlaces(items: readonly MenuItem[]): string[] {
 describe('navegación a nivel de app', () => {
   beforeEach(() => {
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(usuarioMock));
-    TestBed.configureTestingModule({ providers: [provideRouter(conMigasDeSeccion(routes))] });
+    TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
   });
 
   async function snapshotDe(url: string) {
