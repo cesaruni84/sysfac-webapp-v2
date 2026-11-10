@@ -9,7 +9,6 @@ import { authGuard } from './core/auth';
  * pantallas en `features/<modulo>/<modulo>.routes.ts` (export default).
  *
  * Pendiente en oleadas posteriores:
- * - 3.2: envolver las rutas privadas con el componente de layout (shell).
  * - 3.4: páginas 404 y de error (la ruta comodín apuntará a la 404).
  */
 export const routes: Routes = [
@@ -22,6 +21,8 @@ export const routes: Routes = [
     // Rutas privadas: igual que v1 (app.routing.ts), el guard va en la ruta padre.
     path: '',
     canActivate: [authGuard],
+    // Layout de la zona privada (3.2), cargado de forma diferida.
+    loadComponent: () => import('./layout/shell/shell').then((m) => m.LayoutShell),
     children: [
       {
         path: 'dashboard',
