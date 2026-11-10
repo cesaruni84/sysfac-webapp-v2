@@ -1,1 +1,25 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+ * Estilos globales de SYSFAC v2.
+ *
+ * Orden de capas CSS: theme, base, primeng, components, utilities
+ * (declarado en src/tailwind.css, que se carga antes que este archivo).
+ * PrimeNG se inyecta en la capa `primeng` (ver `cssLayer` en app.config.ts),
+ * así las utilidades de Tailwind siempre pueden sobrescribir a PrimeNG.
+ */
+@import url('primeicons/primeicons.css');
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}

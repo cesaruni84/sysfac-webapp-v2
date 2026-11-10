@@ -1,0 +1,49 @@
+# CI de SYSFAC v2 (tarea 1.2 de MIGRATION.md): lint, pruebas unitarias y build.
+#
+# - push a main            → build `production`.
+# - push a develop/wave/** → build `staging`.
+# - pull request           → build `staging`.
+#
+# No despliega. El despliegue en Cloudflare Pages (wrangler-action, secrets
+# CLOUDFLARE_API_TOKEN y CLOUDFLARE_ACCOUNT_ID) se agrega en la tarea 1.2b (Fase 5).
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'wave/**'
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Lint, test y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npx ng lint
+
+      - name: Pruebas unitarias
+        run: npx ng test --watch=false
+
+      - name: Build
+        run: npx ng build --configuration ${{ github.ref_name == 'main' && github.event_name == 'push' && 'production' || 'staging' }}

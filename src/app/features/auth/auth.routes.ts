@@ -1,0 +1,18 @@
+import { Routes } from '@angular/router';
+
+/**
+ * Rutas de la feature `auth` (login y selección de empresa; montada en /sessions).
+ * STUB de la oleada 1: cada ruta muestra PlaceholderPage hasta que se implemente la pantalla.
+ */
+const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'signin' },
+  {
+    path: 'signin',
+    title: 'Iniciar sesión | SYSFAC',
+    data: { title: 'Iniciar sesión', breadcrumb: 'Iniciar sesión' },
+    loadComponent: () =>
+      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+  },
+];
+
+export default routes;
