@@ -1,6 +1,6 @@
 # SysfacWebappV2
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.6.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.6 and later downgraded to Angular 21 (see MIGRATION.md, task 0.2).
 
 ## Development server
 

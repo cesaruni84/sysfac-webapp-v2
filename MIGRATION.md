@@ -1,11 +1,11 @@
 # Plan de migración: SYSFAC frontend
-De `sysfac-webapp-v1` (Angular 6 + Material + Egret) a `sysfac-webapp-v2` (Angular 22 + PrimeNG + Tailwind), con despliegue en **Cloudflare Pages**
+De `sysfac-webapp-v1` (Angular 6 + Material + Egret) a `sysfac-webapp-v2` (Angular 21 + PrimeNG 21 + Tailwind), con despliegue en **Cloudflare Pages**
 
 ## Contexto
 `sysfac-webapp-v1` está en Angular 6 (2018), sobre la plantilla Egret, con dependencias abandonadas o vulnerables. Hoy se despliega en Firebase Hosting desde GitHub Actions (Node 14 y un `FIREBASE_TOKEN` obsoleto).
 Actualizarlo en su lugar exigiría 16 saltos de versión mayor de Angular, con migraciones Altas (Ivy y MDC), y parte de ese trabajo se descartaría porque Material y Egret se eliminan igual.
 
-**Decisión:** reconstruir el frontend en `D:\Personal\Proyectos\Facturacion\nueva_version\sysfac-webapp-v2`. Ya es un proyecto Angular 22.2 recién generado, con componentes standalone, `@angular/build`, Vitest, TypeScript 6, RxJS 7.8 y `strict` activo; todavía no es repositorio git.
+**Decisión:** reconstruir el frontend en `D:\Personal\Proyectos\Facturacion\nueva_version\sysfac-webapp-v2`. Se generó como proyecto Angular 22.2 y se bajó a **Angular 21** (ver 0.2): componentes standalone, `@angular/build`, Vitest, TypeScript 5.9, RxJS 7.8 y `strict` activo.
 La lógica de negocio (modelos, servicios y pantallas) se **porta** desde v1, que queda en producción como referencia hasta el cambio final.
 El despliegue de v2 se hace en **Cloudflare Pages**: es gratuito, con ancho de banda ilimitado, vista previa por PR y Web Analytics incluido. El despliegue en Cloudflare y la captura de errores de JavaScript con **Sentry** se montan en la Fase 5, antes de la salida a producción. Hasta entonces, cada oleada se valida **en local** (`ng serve` en `http://localhost:4300`) y GitHub Actions solo ejecuta CI (lint, test y build).
 **Fuera de alcance:** el desarrollo del backend. Solo se coordinan HTTPS y CORS con quien lo mantenga.
@@ -60,8 +60,8 @@ No se portan: las demos de Egret (`app-calendar`, `app-chats`, `app-inbox`, `sho
 | ID | Tarea | Complejidad |
 |---|---|---|
 | 0.1 | `git init` en v2; crear el repo de GitHub `sysfac-webapp-v2` con ramas `main` (producción) y `develop`; revisar el `.gitignore` (`dist/`, `.angular/`) | Baja |
-| 0.2 | Verificar qué versión de PrimeNG soporta Angular 22. Si todavía no lo soporta, fijar Angular a la mayor versión que sí | Baja |
-| 0.3 | Instalar `primeng`, `@primeuix/themes`, `primeicons`, `tailwindcss` y `tailwindcss-primeui`; configurar `providePrimeNG` (preset Aura) en `src/app/app.config.ts`. Las directivas de Tailwind y el orden de capas CSS van en `src/tailwind.css`, un CSS plano que se carga antes de `src/styles.scss`, porque Tailwind 4 no se procesa bien a través de Sass; `src/styles.scss` queda para los estilos globales | Baja |
+| 0.2 | Verificar qué versión de PrimeNG soporta la versión de Angular **y su licencia**. PrimeNG 22+ usa la *PrimeUI License*, que exige una clave (sin ella muestra el aviso "Invalid PrimeUI License"); la última versión MIT es **PrimeNG 21.1.10**, así que el proyecto usa **Angular 21** | Baja |
+| 0.3 | Instalar `primeng`, `@primeuix/themes`, `primeicons`, `tailwindcss` y `tailwindcss-primeui`. Los paquetes de PrimeUI van con **versión exacta** (sin `^`), en sus últimas versiones MIT: `primeng@21.1.10`, `@primeuix/themes@2.0.3` y `primeicons@7.0.0` (`primeicons@8` tampoco es MIT); configurar `providePrimeNG` (preset Aura) en `src/app/app.config.ts`. Las directivas de Tailwind y el orden de capas CSS van en `src/tailwind.css`, un CSS plano que se carga antes de `src/styles.scss`, porque Tailwind 4 no se procesa bien a través de Sass; `src/styles.scss` queda para los estilos globales | Baja |
 | 0.4 | Agregar ESLint (`angular-eslint`); Prettier y Vitest ya vienen en el proyecto | Baja |
 | 0.5 | Crear `src/environments` (`development`, `staging`, `production`) con `apiUrl`, para reemplazar `var.constant.ts` de v1; configurar `fileReplacements` en `angular.json` | Baja |
 | 0.6 | Escribir el checklist de flujos críticos usando v1 como referencia: login, guías, liquidación, facturación, maestros y exportaciones | Baja |
@@ -215,7 +215,7 @@ De la oleada 1 a la 7, el punto de control es local. En la oleada 8, una vez mon
 - Antes del cambio final: los JSON, PDF y Excel de v2 coinciden con los de v1 con los mismos datos de entrada (tarea 5.1).
 
 ## Riesgos
-- Que PrimeNG no soporte todavía Angular 22: se mitiga con la tarea 0.2.
+- PrimeNG congelado en la 21.1.10, la última versión MIT: no recibirá más versiones gratuitas. Cuando Angular 21 salga de LTS (mediados de 2027), habrá que decidir entre la licencia de PrimeNG 22+ (*community* con clave o comercial) o cambiar de librería de UI. Nunca se actualiza PrimeNG, `@primeuix/themes` ni `primeicons` sin revisar antes su licencia, y nunca se usan versiones `-lts`, que son de pago.
 - Que el backend no tenga una URL pública con HTTPS ni CORS configurado: bloquea el despliegue de la Fase 5, así que hay que coordinarlo con tiempo, antes de llegar a esa fase (1.6). Durante el desarrollo, el backend local debe permitir `http://localhost:4300` en su CORS.
 - Que algo funcione en local y falle en Cloudflare (rutas profundas, `_headers`, CSP): se detecta recién en 1.2b; por eso 1.2b va al inicio de la oleada 8, antes de 5.5 y 5.1.
 - Diferencias de comportamiento al rehacer pantallas: por eso existe 5.1, con validación en paralelo, y v1 se mantiene como respaldo.
@@ -228,3 +228,4 @@ Cambios aprobados por el usuario (regla 6 de `CLAUDE.md`):
 3. Tailwind va en `src/tailwind.css` (0.3); `inlineCritical` queda desactivado (1.3); la capa *Diseño* puede usar los servicios de exportación de Core.
 4. El servidor de desarrollo de v2 usa el puerto 4300 (v1 sigue en el 4200).
 5. El despliegue en Cloudflare (1.1, la parte de despliegue de 1.2 como 1.2b, 1.4, 1.5 y 1.6) pasa a la Fase 5. Hasta entonces, la validación es local y el workflow solo hace CI (`ci.yml`).
+6. Angular baja de 22 a 21 y PrimeNG queda fijo en 21.1.10 (MIT), porque PrimeNG 22+ exige una clave de licencia; `primeicons` queda en 7.0.0 por el mismo motivo.

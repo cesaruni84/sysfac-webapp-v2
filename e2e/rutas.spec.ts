@@ -18,4 +18,11 @@ test.describe('Rutas profundas (sin sesión)', () => {
       await expect(page.locator('app-root')).not.toBeEmpty();
     });
   }
+
+  test('no muestra el aviso de licencia de PrimeUI', async ({ page }) => {
+    // PrimeNG 22+ inyecta #p-license-host sin clave de licencia; v2 usa 21.1.10 (MIT).
+    await page.goto('/sessions/signin');
+    await expect(page.locator('app-root')).not.toBeEmpty();
+    await expect(page.locator('#p-license-host')).toHaveCount(0);
+  });
 });

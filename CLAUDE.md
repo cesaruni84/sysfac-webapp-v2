@@ -1,6 +1,6 @@
 # SYSFAC webapp v2
 
-Reconstrucción del frontend de SYSFAC (facturación): Angular 22 + PrimeNG + Tailwind, con despliegue en Cloudflare Pages.
+Reconstrucción del frontend de SYSFAC (facturación): Angular 21 + PrimeNG 21.1.10 (última versión MIT) + Tailwind, con despliegue en Cloudflare Pages.
 La aplicación anterior, `../sysfac-webapp-v1` (Angular 6 + Material + Egret), es la **referencia funcional de solo lectura**: nunca se modifica.
 
 ## Tu rol: orquestador
