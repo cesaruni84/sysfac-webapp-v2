@@ -1,6 +1,27 @@
 import type { MenuItem } from 'primeng/api';
 import { describe, expect, it } from 'vitest';
-import { MENU_NEGOCIO, crearMenuNegocio } from './menu';
+import { MENU_NEGOCIO, crearMenuNegocio, filtrarMenuPorCargo } from './menu';
+
+describe('filtrarMenuPorCargo', () => {
+  it('Registrador no ve "Facturación" (regla de v1)', () => {
+    const menu = crearMenuNegocio();
+    const filtrado = filtrarMenuPorCargo(menu, 'Registrador');
+    expect(filtrado.map((i) => i.label)).not.toContain('Facturación');
+    expect(filtrado).toHaveLength(MENU_NEGOCIO.length - 1);
+    expect(menu).toHaveLength(MENU_NEGOCIO.length);
+  });
+
+  it.each(['Administrador', 'registrador', '', null, undefined])(
+    'el cargo %s ve el menú completo',
+    (cargo) => {
+      const menu = crearMenuNegocio();
+      const filtrado = filtrarMenuPorCargo(menu, cargo);
+      expect(filtrado).toEqual(menu);
+      expect(filtrado).not.toBe(menu);
+      expect(filtrado[1]).toBe(menu[1]);
+    },
+  );
+});
 
 function enlaces(items: readonly MenuItem[]): string[] {
   return items.flatMap((i) => [

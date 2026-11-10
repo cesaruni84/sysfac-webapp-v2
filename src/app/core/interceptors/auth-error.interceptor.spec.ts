@@ -6,12 +6,62 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { environment } from '../../../environments/environment';
 import { SessionService } from '../auth/session.service';
 import { usuarioMock } from '../auth/auth.testing';
-import { authErrorInterceptor } from './auth-error.interceptor';
+import { Notificacion, NotificacionService } from '../notifications/notificacion.service';
+import {
+  AVISO_ERROR_SERVIDOR,
+  AVISO_SIN_CONEXION,
+  authErrorInterceptor,
+} from './auth-error.interceptor';
 
 describe('authErrorInterceptor', () => {
   const navigate = vi.fn();
   let http: HttpClient;
   let ctrl: HttpTestingController;
+  let avisos: Notificacion[];
+
+  /** Hace un GET que falla con `status` y devuelve el status propagado. */
+  function fallarCon(status: number, body: object | null = { codeMessage: 'E1' }): number {
+    let propagado = -1;
+    http.get('/api/x').subscribe({ error: (e) => (propagado = e.status) });
+    const req = ctrl.expectOne('/api/x');
+    if (status === 0) req.error(new ProgressEvent('error'), { status: 0, statusText: '' });
+    else req.flush(body, { status, statusText: 'x' });
+    return propagado;
+  }
+
+  describe('avisos globales (toast)', () => {
+    beforeEach(() => {
+      avisos = [];
+      TestBed.inject(NotificacionService).notificaciones$.subscribe((n) => avisos.push(n));
+    });
+
+    it('status 0 publica "Sin conexión con el servidor" y propaga el error', () => {
+      expect(fallarCon(0)).toBe(0);
+      expect(avisos).toEqual([{ severidad: 'error', ...AVISO_SIN_CONEXION }]);
+    });
+
+    it.each([500, 502, 503])('%s publica "Error del servidor" y propaga el error', (status) => {
+      expect(fallarCon(status)).toBe(status);
+      expect(avisos).toEqual([{ severidad: 'error', ...AVISO_ERROR_SERVIDOR }]);
+    });
+
+    it.each([400, 401, 404, 409, 422])('%s no publica aviso global', (status) => {
+      expect(fallarCon(status)).toBe(status);
+      expect(avisos).toEqual([]);
+    });
+
+    it('401 del login tampoco publica aviso', () => {
+      http.post(`${environment.apiUrl}/login`, {}).subscribe({ error: () => undefined });
+      ctrl.expectOne(`${environment.apiUrl}/login`).flush({}, { status: 401, statusText: 'x' });
+      expect(avisos).toEqual([]);
+    });
+
+    it('una respuesta correcta no publica aviso', () => {
+      http.get('/api/x').subscribe();
+      ctrl.expectOne('/api/x').flush({});
+      expect(avisos).toEqual([]);
+    });
+  });
 
   beforeEach(() => {
     localStorage.clear();

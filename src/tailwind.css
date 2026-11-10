@@ -7,3 +7,18 @@
 
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
+
+/*
+ * Variante `dark:` de Tailwind ligada a la clase `app-dark` (la misma que usa PrimeNG como
+ * darkModeSelector), en lugar de prefers-color-scheme. Así el interruptor del header controla
+ * a la vez PrimeNG y las utilidades de Tailwind.
+ */
+@custom-variant dark (&:where(.app-dark, .app-dark *));
+
+/* Los README con ejemplos no deben generar utilidades en el CSS de producción. */
+@source not "./app/**/*.md";
+
+/* Tipografía corporativa (3.1): Roboto, como v1; autohospedada (@fontsource-variable/roboto). */
+@theme {
+  --font-sans: 'Roboto Variable', 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
