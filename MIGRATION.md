@@ -108,9 +108,9 @@ Patrón para cada pantalla (corte vertical): componente standalone en `src/app/f
 | 4.1 | Login + selección de empresa | Baja | Formulario pequeño |
 | 4.2 | Usuarios (`profile`) | Baja | Pocas líneas |
 | 4.3 | Localizar unidades (con `@angular/google-maps`) | Baja | 62 líneas |
-| 4.4 | Maestros de Plantas, Choferes y Vehículos | Baja | CRUD simple apoyado en 3.3 |
-| 4.5 | Maestros de Productos, Clientes y Tarifas | Media | Más campos y validaciones |
-| 4.6 | Principal (dashboard), con `p-chart` o `chart.js` 4 | Media | Gráficos y tabla |
+| 4.4 | Maestros de Plantas, Choferes y Vehículos (subcarpetas `factorias/`, `choferes/` y `vehiculos/` de `features/configuracion`) | Baja | CRUD simple apoyado en 3.3 |
+| 4.5 | Maestros de Productos, Clientes y Tarifas (subcarpetas `productos/`, `clientes/` y `tarifas/` de `features/configuracion`) | Media | Más campos y validaciones |
+| 4.6 | Principal (dashboard): página de inicio con bienvenida (usuario y empresa de la sesión) y accesos directos a los módulos. El dashboard de v1 es la demo de Egret con cifras fijas y no se porta | Baja | Sin backend ni gráficos |
 | 4.7 | Consulta de liquidaciones | Media | Filtros y tabla |
 | 4.8 | Facturación: consulta y auditoría | Media | Filtros, diálogos y exportación |
 | 4.9 | Consulta de guías | Media | Paginación, filtros, Excel y PDF |
@@ -137,8 +137,8 @@ Las tareas 1.x de esta fase vienen de la Fase 1 y conservan su ID. Van primero p
 ---
 
 ## Resumen por complejidad (42 tareas)
-- **Baja (25):** 0.1–0.6, 1.1, 1.2b, 1.3, 1.4, 1.5, 1.6, 2.1, 2.5, 2.6, 2.7, 3.1, 3.4, 4.1–4.4, 5.2, 5.3, 5.4
-- **Media (12):** 0.7, 1.2, 2.2, 2.3, 2.4, 4.5–4.9, 5.5, 5.1
+- **Baja (26):** 0.1–0.6, 1.1, 1.2b, 1.3, 1.4, 1.5, 1.6, 2.1, 2.5, 2.6, 2.7, 3.1, 3.4, 4.1–4.4, 4.6, 5.2, 5.3, 5.4
+- **Media (11):** 0.7, 1.2, 2.2, 2.3, 2.4, 4.5, 4.7–4.9, 5.5, 5.1
 - **Alta (5):** 3.2 (layout), 3.3 (`shared/ui`), 4.10 (guías), 4.11 (liquidación), 4.12 (factura)
 
 Orden recomendado: Fase 0 → Fase 1 (CI y ejecución local con una página vacía) → 2 → 3 → 4 (de Baja a Alta) → 5 (primero el despliegue en Cloudflare, luego la salida a producción).
@@ -159,7 +159,7 @@ Bastan **dos definiciones de agente** (DevMid y DevSenior) y el orquestador; no 
 
 ### Reglas para que los agentes no colisionen
 1. **Aislamiento:** cada instancia corre con `isolation: "worktree"`, con su propio directorio y su rama `feat/<id-tarea>`, por ejemplo `feat/4.4-maestros`. Requisito: v2 debe ser repo git con un commit inicial (tarea 0.1).
-2. **Un dueño por carpeta:** cada pantalla vive en `src/app/features/<modulo>/` con su propio `<modulo>.routes.ts`, y solo la tarea asignada edita esa carpeta.
+2. **Un dueño por carpeta:** cada pantalla vive en `src/app/features/<modulo>/` con su propio `<modulo>.routes.ts`, y solo la tarea asignada edita esa carpeta. Excepción: `features/configuracion` la comparten 4.4 y 4.5, así que el orquestador deja `configuracion.routes.ts` apuntando con `loadChildren` a una subcarpeta por maestro (`<maestro>/<maestro>.routes.ts`); cada tarea edita solo sus subcarpetas y nadie toca `configuracion.routes.ts`.
 3. **Archivos compartidos bloqueados:** solo el orquestador o DevSenior pueden editar `package.json`, `package-lock.json`, `angular.json`, `src/app/app.routes.ts`, `src/app/app.config.ts`, `src/styles.scss`, `src/tailwind.css`, `src/app/core/**` y `src/app/shared/ui/**`. Si DevMid necesita un cambio ahí, lo pide en su reporte y no lo hace.
 4. **Rutas preregistradas:** antes de la Fase 4, el orquestador deja en `app.routes.ts` todas las rutas lazy (`loadChildren: () => import('./features/<modulo>/<modulo>.routes')`) apuntando a stubs. Así ningún agente necesita tocar ese archivo.
 5. **Dependencias instaladas de antemano:** todas las librerías se instalan en la Fase 0 (PrimeNG, Tailwind, exceljs, jspdf, `@angular/google-maps`). La única excepción es `@sentry/angular`, que el orquestador instala en la tarea 5.5. Los agentes tienen prohibido hacer `npm install <paquete>`. En su worktree solo ejecutan `npm ci`.
@@ -229,3 +229,5 @@ Cambios aprobados por el usuario (regla 6 de `CLAUDE.md`):
 4. El servidor de desarrollo de v2 usa el puerto 4300 (v1 sigue en el 4200).
 5. El despliegue en Cloudflare (1.1, la parte de despliegue de 1.2 como 1.2b, 1.4, 1.5 y 1.6) pasa a la Fase 5. Hasta entonces, la validación es local y el workflow solo hace CI (`ci.yml`).
 6. Angular baja de 22 a 21 y PrimeNG queda fijo en 21.1.10 (MIT), porque PrimeNG 22+ exige una clave de licencia; `primeicons` queda en 7.0.0 por el mismo motivo.
+7. El dashboard (4.6) pasa a ser una página de inicio con bienvenida y accesos directos (complejidad Baja): el de v1 es la demo de Egret, con cifras fijas y sin backend.
+8. `features/configuracion` se divide en una subcarpeta por maestro, con su propio archivo de rutas, para que 4.4 y 4.5 no compartan `configuracion.routes.ts` (regla 2 de colisiones).
