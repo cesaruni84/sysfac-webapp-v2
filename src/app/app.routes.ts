@@ -7,15 +7,32 @@ import { authGuard } from './core/auth';
  *
  * Archivo compartido: solo lo edita el orquestador. Cada feature define sus
  * pantallas en `features/<modulo>/<modulo>.routes.ts` (export default).
- *
- * Pendiente en oleadas posteriores:
- * - 3.4: páginas 404 y de error (la ruta comodín apuntará a la 404).
  */
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'sessions' },
   {
+    // Zona pública (3.4): el layout aporta fondo, centrado y marca; cada página, su tarjeta.
     path: 'sessions',
-    loadChildren: () => import('./features/auth/auth.routes'),
+    loadComponent: () => import('./layout/auth/auth-layout').then((m) => m.LayoutAuth),
+    children: [
+      {
+        path: '404',
+        title: 'Página no encontrada | SYSFAC',
+        loadComponent: () =>
+          import('./layout/paginas/no-encontrada/no-encontrada').then(
+            (m) => m.PaginaNoEncontrada,
+          ),
+      },
+      {
+        path: 'error',
+        title: 'Error | SYSFAC',
+        loadComponent: () => import('./layout/paginas/error/error').then((m) => m.PaginaError),
+      },
+      {
+        path: '',
+        loadChildren: () => import('./features/auth/auth.routes'),
+      },
+    ],
   },
   {
     // Rutas privadas: igual que v1 (app.routing.ts), el guard va en la ruta padre.
@@ -67,5 +84,6 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: 'sessions' },
+  // Igual que v1 (app.routing.ts): cualquier URL desconocida va a la 404.
+  { path: '**', redirectTo: 'sessions/404' },
 ];
