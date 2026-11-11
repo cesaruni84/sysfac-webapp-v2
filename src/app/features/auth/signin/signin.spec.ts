@@ -106,7 +106,7 @@ describe('Signin', () => {
     expect(login).toHaveBeenCalledOnce();
   });
 
-  it.each([403, 404, 409])('muestra el codeMessage del error %i', (status) => {
+  it.each([403, 404, 409])('muestra el errorMessage del error %i', (status) => {
     login.mockReturnValue(
       throwError(
         () =>
@@ -119,16 +119,41 @@ describe('Signin', () => {
           }),
       ),
     );
-    const { cmp } = crear();
+    const { fixture, cmp } = crear();
     llenar(cmp);
     cmp.signin();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain(
+      'Usuario y/o contraseña incorrectos. Intente nuevamente.',
+    );
+    expect(fixture.nativeElement.textContent).not.toContain('MFA2002');
     expect(cmp.error()).toBe('Usuario y/o contraseña incorrectos. Intente nuevamente.');
     expect(cmp.error()).not.toBe('MFA2002');
     expect(cmp.cargando()).toBe(false);
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it('usa un mensaje genérico si el error no trae codeMessage', () => {
+  it('el combobox expone aria-invalid y aria-describedby cuando está tocado e inválido', () => {
+    const { fixture, cmp } = crear();
+    cmp.form.controls['empresaSelected'].markAsTouched();
+    fixture.detectChanges();
+    const combo = (fixture.nativeElement as HTMLElement).querySelector('[role="combobox"]');
+    expect(combo?.getAttribute('aria-invalid')).toBe('true');
+    expect(combo?.getAttribute('aria-describedby')).toBe('empresaSelected-error');
+  });
+
+  it('con cuerpo sin errorMessage muestra el genérico y nunca el código', () => {
+    login.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 403, error: { codeMessage: 'MFA2002' } })),
+    );
+    const { cmp } = crear();
+    llenar(cmp);
+    cmp.signin();
+    expect(cmp.error()).toBe(MENSAJE_LOGIN_GENERICO);
+    expect(cmp.error()).not.toContain('MFA2002');
+  });
+
+  it('usa un mensaje genérico si el error no trae errorMessage', () => {
     login.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 0 })));
     const { cmp } = crear();
     llenar(cmp);

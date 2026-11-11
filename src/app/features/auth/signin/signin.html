@@ -16,6 +16,7 @@
         formControlName="username"
         autocomplete="username"
         class="w-full"
+        [invalid]="invalido('username')"
         [attr.aria-invalid]="invalido('username') || null"
         [attr.aria-describedby]="invalido('username') ? 'username-error' : null"
       />
@@ -36,6 +37,7 @@
         formControlName="password"
         autocomplete="current-password"
         class="w-full"
+        [invalid]="invalido('password')"
         [attr.aria-invalid]="invalido('password') || null"
         [attr.aria-describedby]="invalido('password') ? 'password-error' : null"
       />
@@ -57,8 +59,13 @@
         optionLabel="comercial"
         placeholder="Seleccione una empresa"
         class="w-full"
-        [attr.aria-invalid]="invalido('empresaSelected') || null"
-        [attr.aria-describedby]="invalido('empresaSelected') ? 'empresaSelected-error' : null"
+        [pt]="{
+          label: {
+            'aria-describedby': invalido('empresaSelected') ? 'empresaSelected-error' : null,
+            'aria-invalid': invalido('empresaSelected') || null,
+          },
+        }"
+        [invalid]="invalido('empresaSelected')"
       >
         <ng-template #selectedItem let-empresa
           >{{ empresa.comercial }} - RUC {{ empresa.ruc }}</ng-template
