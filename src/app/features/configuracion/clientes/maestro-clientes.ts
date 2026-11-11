@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { SelectModule } from 'primeng/select';
 
@@ -47,6 +48,7 @@ interface FormularioCliente {
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
+    MessageModule,
     KeyFilterModule,
     SelectModule,
     Tabla,
@@ -96,16 +98,28 @@ interface FormularioCliente {
         </div>
         <label class="flex flex-col gap-1 sm:col-span-2">
           <span class="text-sm font-medium">DOCUMENTO</span>
-          <input pInputText pKeyFilter="pint" formControlName="ruc" maxlength="12" data-testid="ruc" />
+          <input pInputText pKeyFilter="pint" formControlName="ruc" maxlength="12"
+            data-testid="ruc"
+            [invalid]="invalido('ruc')"
+            [attr.aria-invalid]="invalido('ruc') || null"
+            [attr.aria-describedby]="invalido('ruc') ? 'ruc-error' : null"
+          />
           @if (invalido('ruc')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="ruc-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </label>
         <label class="flex flex-col gap-1 sm:col-span-6">
           <span class="text-sm font-medium">RAZON SOCIAL / NOMBRE</span>
-          <input pInputText formControlName="nombre" data-testid="nombre" />
+          <input
+            pInputText
+            formControlName="nombre"
+            data-testid="nombre"
+            [invalid]="invalido('nombre')"
+            [attr.aria-invalid]="invalido('nombre') || null"
+            [attr.aria-describedby]="invalido('nombre') ? 'nombre-error' : null"
+          />
           @if (invalido('nombre')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="nombre-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </label>
         <label class="flex flex-col gap-1 sm:col-span-2">
@@ -114,9 +128,16 @@ interface FormularioCliente {
         </label>
         <label class="flex flex-col gap-1 sm:col-span-2">
           <span class="text-sm font-medium">EMAIL</span>
-          <input pInputText formControlName="email" data-testid="email" />
+          <input
+            pInputText
+            formControlName="email"
+            data-testid="email"
+            [invalid]="invalido('email')"
+            [attr.aria-invalid]="invalido('email') || null"
+            [attr.aria-describedby]="invalido('email') ? 'email-error' : null"
+          />
           @if (invalido('email')) {
-            <small class="text-red-500">* FORMATO INCORRECTO</small>
+            <p-message id="email-error" severity="error" variant="simple" size="small">* FORMATO INCORRECTO</p-message>
           }
         </label>
         <label class="flex flex-col gap-1 sm:col-span-6">

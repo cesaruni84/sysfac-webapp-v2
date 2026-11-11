@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -51,6 +52,7 @@ interface FormularioTarifa {
     ButtonModule,
     InputNumberModule,
     InputTextModule,
+    MessageModule,
     SelectModule,
     TextareaModule,
     ToggleSwitchModule,
@@ -100,9 +102,16 @@ interface FormularioTarifa {
             filterBy="refLarga2"
             (onChange)="seleccionarOrigen($event.value)"
             data-testid="origen"
+            [invalid]="invalido('origen')"
+            [pt]="{
+              label: {
+                'aria-describedby': invalido('origen') ? 'origen-error' : null,
+                'aria-invalid': invalido('origen') || null,
+              },
+            }"
           />
           @if (invalido('origen')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="origen-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </div>
         <div class="flex flex-col gap-1 sm:col-span-3">
@@ -118,9 +127,16 @@ interface FormularioTarifa {
             filterBy="refLarga2"
             (onChange)="seleccionarDestino($event.value)"
             data-testid="destino"
+            [invalid]="invalido('destino')"
+            [pt]="{
+              label: {
+                'aria-describedby': invalido('destino') ? 'destino-error' : null,
+                'aria-invalid': invalido('destino') || null,
+              },
+            }"
           />
           @if (invalido('destino')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="destino-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </div>
         <label class="flex flex-col gap-1 sm:col-span-3">
@@ -140,9 +156,12 @@ interface FormularioTarifa {
             [maxFractionDigits]="4"
             [useGrouping]="false"
             data-testid="importe"
+            [invalid]="invalido('importe')"
+            [ariaDescribedBy]="invalido('importe') ? 'importe-error' : undefined"
+            [pt]="{ pcInputText: { root: { 'aria-invalid': invalido('importe') || null } } }"
           />
           @if (invalido('importe')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="importe-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </div>
         <div class="flex flex-col gap-1 sm:col-span-2">
