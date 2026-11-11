@@ -132,7 +132,7 @@ describe('MaestroFactorias', () => {
     expect(enviado.cliente).not.toHaveProperty('etiqueta');
   });
 
-  it('muestra "Campo requerido" en un campo obligatorio tocado', () => {
+  it('muestra "* REQUERIDO" en un campo obligatorio tocado', () => {
     const fixture = crear();
     const c = fixture.componentInstance;
     c.abrir();
@@ -140,8 +140,15 @@ describe('MaestroFactorias', () => {
     c.form.controls.codigo.markAsTouched();
     fixture.detectChanges();
     expect(c.invalido('codigo')).toBe(true);
-    expect(c.error('codigo')).toBe('Campo requerido');
-    expect(document.querySelector('#f-codigo-error')?.textContent).toContain('Campo requerido');
+    expect(c.error('codigo')).toBe('* REQUERIDO');
+    expect(document.querySelector('#f-codigo-error')?.textContent).toContain('* REQUERIDO');
+  });
+
+  it('el combo de cliente tiene nombre accesible (aria-labelledby)', () => {
+    const fixture = crear();
+    fixture.componentInstance.abrir();
+    fixture.detectChanges();
+    expect(document.querySelector('[role="combobox"]#f-cliente')?.getAttribute('aria-labelledby')).toBe('f-cliente-label');
   });
 
   it('baja: confirma, elimina, avisa con alertMessage y recarga', async () => {

@@ -45,9 +45,10 @@ const MENSAJE_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
     >
       <form [formGroup]="form" (ngSubmit)="guardar()" class="grid grid-cols-1 gap-4 sm:grid-cols-10">
         <div class="flex flex-col gap-1 sm:col-span-7">
-          <label for="f-cliente" class="text-sm font-medium">CLIENTE</label>
+          <label id="f-cliente-label" for="f-cliente" class="text-sm font-medium">CLIENTE</label>
           <p-select
             inputId="f-cliente"
+            ariaLabelledBy="f-cliente-label"
             formControlName="cliente"
             [options]="clientes()"
             optionLabel="etiqueta"
@@ -295,17 +296,15 @@ export class MaestroFactorias implements OnInit {
     }
   }
 
-  invalido(nombre: string): boolean {
+  invalido(nombre: keyof MaestroFactorias['form']['controls']): boolean {
     const c = this.form.get(nombre);
     return !!c && c.invalid && (c.touched || c.dirty);
   }
 
-  error(nombre: string): string {
+  error(nombre: keyof MaestroFactorias['form']['controls']): string {
     const e = this.form.get(nombre)?.errors;
     if (!e) return '';
-    if (e['required']) return 'Campo requerido';
-    if (e['maxlength']) return 'Máximo 8 dígitos';
-    if (e['digits']) return 'Solo dígitos';
+    if (e['required']) return '* REQUERIDO';
     return 'Valor no válido';
   }
 

@@ -87,7 +87,6 @@ type ChoferFila = Chofer & { vehiculoTexto: string };
             pInputText
             id="c-dni"
             formControlName="dni"
-            maxlength="8"
             inputmode="numeric"
             (input)="filtrarDigitos('dni', $event)"
             class="w-full"
@@ -123,9 +122,10 @@ type ChoferFila = Chofer & { vehiculoTexto: string };
           <input pInputText id="c-email" formControlName="email" class="w-full" />
         </div>
         <div class="flex flex-col gap-1">
-          <label for="c-vehiculo" class="text-sm font-medium">VEHICULO ASIGNADO (Tracto/Bombona/Marca)</label>
+          <label id="c-vehiculo-label" for="c-vehiculo" class="text-sm font-medium">VEHICULO ASIGNADO (Tracto/Bombona/Marca)</label>
           <p-select
             inputId="c-vehiculo"
+            ariaLabelledBy="c-vehiculo-label"
             formControlName="vehiculo"
             [options]="vehiculos()"
             optionLabel="etiqueta"
@@ -317,22 +317,22 @@ export class MaestroChoferes implements OnInit {
   /** Como `validaDigitos` de v1: solo admite dígitos al teclear y al pegar. */
   filtrarDigitos(nombre: 'dni' | 'telefono', evento: Event): void {
     const el = evento.target as HTMLInputElement;
-    const limpio = soloDigitos(el.value);
+    const limpio = nombre === 'dni' ? soloDigitos(el.value).slice(0, 8) : soloDigitos(el.value);
     if (limpio !== el.value) {
       el.value = limpio;
       this.form.controls[nombre].setValue(limpio);
     }
   }
 
-  invalido(nombre: string): boolean {
+  invalido(nombre: keyof MaestroChoferes['form']['controls']): boolean {
     const c = this.form.get(nombre);
     return !!c && c.invalid && (c.touched || c.dirty);
   }
 
-  error(nombre: string): string {
+  error(nombre: keyof MaestroChoferes['form']['controls']): string {
     const e = this.form.get(nombre)?.errors;
     if (!e) return '';
-    if (e['required']) return 'Campo requerido';
+    if (e['required']) return '* REQUERIDO';
     if (e['maxlength']) return 'Máximo 8 dígitos';
     if (e['digits']) return 'Solo dígitos';
     return 'Valor no válido';

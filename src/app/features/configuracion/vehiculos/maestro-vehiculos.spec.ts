@@ -88,15 +88,15 @@ describe('MaestroVehiculos', () => {
     expect(avisos.exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
   });
 
-  it('muestra "Campo requerido" en un campo obligatorio tocado', () => {
+  it('muestra "* REQUERIDO" en un campo obligatorio tocado', () => {
     const fixture = crear();
     const c = fixture.componentInstance;
     c.abrir();
     expect(c.invalido('tracto')).toBe(false);
     c.form.controls.tracto.markAsTouched();
     fixture.detectChanges();
-    expect(c.error('tracto')).toBe('Campo requerido');
-    expect(document.querySelector('#v-tracto-error')?.textContent).toContain('Campo requerido');
+    expect(c.error('tracto')).toBe('* REQUERIDO');
+    expect(document.querySelector('#v-tracto-error')?.textContent).toContain('* REQUERIDO');
   });
 
   it('baja: confirma y avisa que la opción está deshabilitada (como v1)', async () => {
