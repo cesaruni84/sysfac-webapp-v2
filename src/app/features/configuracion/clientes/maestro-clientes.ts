@@ -5,7 +5,6 @@ import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
-import { KeyFilterModule } from 'primeng/keyfilter';
 import { SelectModule } from 'primeng/select';
 
 import { SessionService } from '../../../core/auth';
@@ -13,7 +12,7 @@ import { Cliente } from '../../../core/models';
 import type { ErrorResponse, TipoDocPersona } from '../../../core/models';
 import { NotificacionService } from '../../../core/notifications';
 import { ClienteService, TiposGenericosService } from '../../../core/services';
-import { correo } from '../../../core/validators';
+import { correo, soloDigitos } from '../../../core/validators';
 import {
   DialogoCrud,
   Tabla,
@@ -49,7 +48,6 @@ interface FormularioCliente {
     ButtonModule,
     InputTextModule,
     MessageModule,
-    KeyFilterModule,
     SelectModule,
     Tabla,
     TablaCelda,
@@ -85,9 +83,10 @@ interface FormularioCliente {
     >
       <form [formGroup]="form" (ngSubmit)="guardar()" class="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-6">
         <div class="flex flex-col gap-1 sm:col-span-2">
-          <label for="tipoDocumento" class="text-sm font-medium">TIPO DE DOCUMENTO</label>
+          <label id="tipoDocumento-label" for="tipoDocumento" class="text-sm font-medium">TIPO DE DOCUMENTO</label>
           <p-select
             inputId="tipoDocumento"
+            ariaLabelledBy="tipoDocumento-label"
             formControlName="tipoDocumento"
             [options]="tiposDocumento"
             optionLabel="descripcion"
@@ -98,7 +97,7 @@ interface FormularioCliente {
         </div>
         <label class="flex flex-col gap-1 sm:col-span-2">
           <span class="text-sm font-medium">DOCUMENTO</span>
-          <input pInputText pKeyFilter="pint" formControlName="ruc" maxlength="12"
+          <input pInputText formControlName="ruc" inputmode="numeric" (input)="filtrarDocumento($event)"
             data-testid="ruc"
             [invalid]="invalido('ruc')"
             [attr.aria-invalid]="invalido('ruc') || null"
@@ -225,6 +224,16 @@ export class MaestroClientes {
       this.avisos.error('Error', mensajeError(e));
     } finally {
       this.cargando.set(false);
+    }
+  }
+
+  /** Como `validaDigitos` de v1, pero limpia lo escrito o pegado (solo dígitos, máximo 12). */
+  filtrarDocumento(evento: Event): void {
+    const el = evento.target as HTMLInputElement;
+    const limpio = soloDigitos(el.value).slice(0, 12);
+    if (limpio !== el.value) {
+      el.value = limpio;
+      this.form.controls.ruc.setValue(limpio);
     }
   }
 

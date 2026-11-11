@@ -132,6 +132,15 @@ describe('MaestroProductos', () => {
     expect(stock.getAttribute('aria-describedby')).toBe('stock-error');
   });
 
+  it('el combo de tipo de producto tiene nombre accesible por aria-labelledby', async () => {
+    comp.abrir();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const combo = document.querySelector('.p-dialog [role="combobox"]');
+    expect(combo?.getAttribute('aria-labelledby')).toBe('tipoProducto-label');
+  });
+
   it('no guarda un formulario inválido', async () => {
     comp.abrir();
     await comp.guardar();
