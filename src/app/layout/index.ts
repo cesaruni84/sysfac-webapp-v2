@@ -5,7 +5,10 @@
  * `loadComponent: () => import('./layout/shell/shell').then((m) => m.LayoutShell)`
  * (se importa el archivo directo, no este índice, para no arrastrar el resto al bundle inicial).
  */
+export * from './auth/auth-layout';
 export * from './breadcrumb/breadcrumb';
+export * from './paginas/error/error';
+export * from './paginas/no-encontrada/no-encontrada';
 export * from './header/header';
 export * from './shell/shell';
 export * from './sidebar/sidebar';
