@@ -26,7 +26,9 @@ const urlsPrivadas: [url: string, titulo: string][] = [
   ['/map', 'Localizar unidades'],
 ];
 
-describe('app.routes', () => {
+// Timeout amplio: cada navegación carga de verdad los chunks diferidos, y en un arranque en frío
+// (justo después de `npm ci`) la primera de cada grupo superaba los 5 s por defecto.
+describe('app.routes', { timeout: 20_000 }, () => {
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
