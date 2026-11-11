@@ -93,9 +93,10 @@ interface FormularioProducto {
     >
       <form [formGroup]="form" (ngSubmit)="guardar()" class="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-6">
         <div class="flex flex-col gap-1 sm:col-span-2">
-          <label for="tipoProducto" class="text-sm font-medium">TIPO DE PRODUCTO</label>
+          <label id="tipoProducto-label" for="tipoProducto" class="text-sm font-medium">TIPO DE PRODUCTO</label>
           <p-select
             inputId="tipoProducto"
+            ariaLabelledBy="tipoProducto-label"
             formControlName="tipoProducto"
             [options]="tipos"
             optionLabel="descripcion"

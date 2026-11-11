@@ -97,6 +97,17 @@ describe('MaestroTarifas', () => {
     expect(document.getElementById('origen-error')?.textContent).toContain('REQUERIDO');
   });
 
+  it('los combos tienen nombre accesible por aria-labelledby', async () => {
+    comp.abrir();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const ids = Array.from(document.querySelectorAll('.p-dialog [role="combobox"]')).map((c) =>
+      c.getAttribute('aria-labelledby'),
+    );
+    expect(ids).toEqual(['origen-label', 'destino-label', 'moneda-label']);
+  });
+
   it('el alta envía el JSON de v1 (empresa de sesión, turno 1, estado 0 si activo)', async () => {
     comp.abrir();
     expect(comp.form.invalid).toBe(true);

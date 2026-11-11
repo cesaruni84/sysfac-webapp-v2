@@ -125,6 +125,29 @@ describe('MaestroClientes', () => {
     expect(document.getElementById('ruc-error')?.textContent).toContain('REQUERIDO');
   });
 
+  it('limpia el documento al pegar (solo dígitos, máximo 12)', async () => {
+    comp.abrir();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const ruc = document.querySelector('[data-testid="ruc"]') as HTMLInputElement;
+    ruc.value = '20-123.456-789';
+    ruc.dispatchEvent(new Event('input'));
+    expect(ruc.value).toBe('20123456789');
+    expect(comp.form.controls.ruc.value).toBe('20123456789');
+    ruc.value = '1234567890123456';
+    ruc.dispatchEvent(new Event('input'));
+    expect(comp.form.controls.ruc.value).toBe('123456789012');
+  });
+
+  it('el combo de tipo de documento tiene nombre accesible por aria-labelledby', async () => {
+    comp.abrir();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const combo = document.querySelector('.p-dialog [role="combobox"]');
+    expect(combo?.getAttribute('aria-labelledby')).toBe('tipoDocumento-label');
+  });
+
   it('valida requeridos y formato de correo', async () => {
     comp.abrir();
     expect(comp.form.invalid).toBe(true);

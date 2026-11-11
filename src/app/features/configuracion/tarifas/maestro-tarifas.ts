@@ -90,9 +90,10 @@ interface FormularioTarifa {
     >
       <form [formGroup]="form" (ngSubmit)="guardar()" class="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-6">
         <div class="flex flex-col gap-1 sm:col-span-3">
-          <label for="origen" class="text-sm font-medium">ORIGEN</label>
+          <label id="origen-label" for="origen" class="text-sm font-medium">ORIGEN</label>
           <p-select
             inputId="origen"
+            ariaLabelledBy="origen-label"
             formControlName="origen"
             [options]="factorias()"
             optionLabel="refLarga2"
@@ -115,9 +116,10 @@ interface FormularioTarifa {
           }
         </div>
         <div class="flex flex-col gap-1 sm:col-span-3">
-          <label for="destino" class="text-sm font-medium">DESTINO</label>
+          <label id="destino-label" for="destino" class="text-sm font-medium">DESTINO</label>
           <p-select
             inputId="destino"
+            ariaLabelledBy="destino-label"
             formControlName="destino"
             [options]="factorias()"
             optionLabel="refLarga2"
@@ -165,9 +167,10 @@ interface FormularioTarifa {
           }
         </div>
         <div class="flex flex-col gap-1 sm:col-span-2">
-          <label for="moneda" class="text-sm font-medium">MONEDA</label>
+          <label id="moneda-label" for="moneda" class="text-sm font-medium">MONEDA</label>
           <p-select
             inputId="moneda"
+            ariaLabelledBy="moneda-label"
             formControlName="moneda"
             [options]="monedas"
             optionLabel="descripcion"
