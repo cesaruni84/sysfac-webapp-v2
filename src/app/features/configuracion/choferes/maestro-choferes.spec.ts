@@ -107,21 +107,77 @@ describe('MaestroChoferes', () => {
     c.abrir(lista[0]);
     c.form.patchValue({ nombres: 'Juan Carlos' });
     await c.guardar();
-    const enviado = servicio.actualizarChofer.mock.calls[0][0] as Chofer;
-    expect(enviado.id).toBe(1);
-    expect(enviado.nombres).toBe('Juan Carlos');
-    expect(enviado.empresa).toEqual({ ...empresa, id: 1 });
+    expect(servicio.actualizarChofer).toHaveBeenCalledWith({
+      nombres: 'Juan Carlos',
+      apellidos: 'Perez',
+      dni: '12345678',
+      telefono: '',
+      email: '',
+      vehiculo,
+      licencia: 'Q123',
+      certificado: 'MTC7',
+      empresa: { ...empresa, id: 1 },
+      id: 1,
+    });
     expect(avisos.exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
+  });
+
+  it('edición: al volver a elegir vehículo en el combo, el objeto enviado no lleva etiqueta', async () => {
+    servicio.actualizarChofer.mockReturnValue(of({ codeMessage: 'OK', alertMessage: 'ok' }));
+    const c = crear().componentInstance;
+    c.abrir(lista[0]);
+    c.form.patchValue({ vehiculo: c.vehiculos()[0] });
+    await c.guardar();
+    const enviado = servicio.actualizarChofer.mock.calls[0][0] as Chofer;
+    expect(enviado.vehiculo).toEqual(vehiculo);
+    expect(enviado.vehiculo).not.toHaveProperty('etiqueta');
+    expect(enviado).not.toHaveProperty('vehiculoTexto');
+  });
+
+  it('mensajes de error: requerido, máximo 8 y solo dígitos', () => {
+    const fixture = crear();
+    const c = fixture.componentInstance;
+    c.abrir();
+    c.form.controls.nombres.markAsTouched();
+    c.form.controls.dni.markAsDirty();
+    fixture.detectChanges();
+    expect(c.error('nombres')).toBe('Campo requerido');
+    expect(c.error('dni')).toBe('Campo requerido');
+    expect(document.querySelector('#c-nombres-error')?.textContent).toContain('Campo requerido');
+    c.form.controls.dni.setValue('123456789');
+    expect(c.error('dni')).toBe('Máximo 8 dígitos');
+    c.form.controls.dni.setValue('1234abcd');
+    expect(c.error('dni')).toBe('Solo dígitos');
+    c.form.controls.telefono.setValue('99x');
+    expect(c.error('telefono')).toBe('Solo dígitos');
+  });
+
+  it('filtra caracteres no numéricos en DNI y teléfono al escribir o pegar', () => {
+    const fixture = crear();
+    const c = fixture.componentInstance;
+    c.abrir();
+    fixture.detectChanges();
+    const input = document.querySelector('#c-dni') as HTMLInputElement;
+    input.value = '12a3-4';
+    input.dispatchEvent(new Event('input'));
+    expect(input.value).toBe('1234');
+    expect(c.form.controls.dni.value).toBe('1234');
+  });
+
+  it('el buscador de la tabla encuentra por placa de bombona', async () => {
+    const fixture = crear();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.choferes()[0].vehiculoTexto).toBe('ABC-123 / XYZ-987');
   });
 
   it('baja: confirma y avisa que la opción está deshabilitada (como v1)', async () => {
     confirmar.mockResolvedValue(true);
     const c = crear().componentInstance;
-    await c.alAccion({ accion: 'eliminar', fila: lista[0] });
+    await c.alAccion({ accion: 'eliminar', fila: { ...lista[0], vehiculoTexto: '' } });
     expect(avisos.info).toHaveBeenCalledWith('Opción deshabilitada !');
     confirmar.mockResolvedValue(false);
     avisos.info.mockClear();
-    await c.alAccion({ accion: 'eliminar', fila: lista[0] });
+    await c.alAccion({ accion: 'eliminar', fila: { ...lista[0], vehiculoTexto: '' } });
     expect(avisos.info).not.toHaveBeenCalled();
   });
 

@@ -102,9 +102,46 @@ describe('MaestroFactorias', () => {
     expect(c.form.controls.ruc.value).toBe('20123456789');
     c.form.patchValue({ estado: false });
     await c.guardar();
-    const enviado = servicio.actualizarFactoria.mock.calls[0][0] as Factoria;
-    expect(enviado).toMatchObject({ id: 10, codigo: 'P01', estado: 1, referencia: '?', tipo: 'O', cliente });
+    expect(servicio.actualizarFactoria).toHaveBeenCalledWith({
+      cliente,
+      codigo: 'P01',
+      ruc: '20123456789',
+      nombre: 'Planta 1',
+      direccion: 'Av. 1',
+      distrito: 'Lima',
+      provincia: 'Lima',
+      departamento: 'Lima',
+      estado: 1,
+      referencia: '?',
+      tipo: 'O',
+      id: 10,
+    });
     expect(avisos.exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
+  });
+
+  it('edición: al volver a elegir cliente en el combo, el objeto enviado no lleva etiqueta', async () => {
+    servicio.actualizarFactoria.mockReturnValue(of({ codeMessage: 'OK', alertMessage: 'ok' }));
+    const c = crear().componentInstance;
+    c.abrir(lista[0]);
+    const opcion = c.clientes()[0];
+    c.form.patchValue({ cliente: opcion });
+    c.seleccionarCliente(opcion);
+    await c.guardar();
+    const enviado = servicio.actualizarFactoria.mock.calls[0][0] as Factoria;
+    expect(enviado.cliente).toEqual(cliente);
+    expect(enviado.cliente).not.toHaveProperty('etiqueta');
+  });
+
+  it('muestra "Campo requerido" en un campo obligatorio tocado', () => {
+    const fixture = crear();
+    const c = fixture.componentInstance;
+    c.abrir();
+    expect(c.invalido('codigo')).toBe(false);
+    c.form.controls.codigo.markAsTouched();
+    fixture.detectChanges();
+    expect(c.invalido('codigo')).toBe(true);
+    expect(c.error('codigo')).toBe('Campo requerido');
+    expect(document.querySelector('#f-codigo-error')?.textContent).toContain('Campo requerido');
   });
 
   it('baja: confirma, elimina, avisa con alertMessage y recarga', async () => {

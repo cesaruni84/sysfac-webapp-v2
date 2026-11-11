@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { ButtonModule } from 'primeng/button';
@@ -26,7 +27,7 @@ const MENSAJE_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
 /** Maestro de Plantas (factorías). Port de `maestro-factoria` de v1. */
 @Component({
   selector: 'app-maestro-factorias',
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, ToggleSwitchModule, Tabla, TablaCelda, DialogoCrud],
+  imports: [ReactiveFormsModule, MessageModule, ButtonModule, InputTextModule, SelectModule, ToggleSwitchModule, Tabla, TablaCelda, DialogoCrud],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-tabla [filas]="factorias()" [columnas]="columnas" [acciones]="acciones" [cargando]="cargando()" (accion)="alAccion($event)">
@@ -53,40 +54,99 @@ const MENSAJE_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
             dataKey="id"
             [filter]="true"
             filterBy="etiqueta"
+            (onChange)="seleccionarCliente($event.value)"
             placeholder="Seleccione"
             appendTo="body"
-            (onChange)="seleccionarCliente($event.value)"
+            class="w-full"
+            [pt]="{
+              label: {
+                'aria-describedby': invalido('cliente') ? 'f-cliente-error' : null,
+                'aria-invalid': invalido('cliente') || null,
+              },
+            }"
+            [invalid]="invalido('cliente')"
             data-testid="cliente"
           />
+          @if (invalido('cliente')) {
+            <p-message id="f-cliente-error" severity="error" variant="simple" size="small">{{ error('cliente') }}</p-message>
+          }
         </div>
-        <label class="flex flex-col gap-1 sm:col-span-3">
-          <span class="text-sm font-medium">RUC</span>
-          <input pInputText formControlName="ruc" data-testid="ruc" />
-        </label>
-        <label class="flex flex-col gap-1 sm:col-span-3">
-          <span class="text-sm font-medium">CODIGO</span>
-          <input pInputText formControlName="codigo" data-testid="codigo" />
-        </label>
-        <label class="flex flex-col gap-1 sm:col-span-7">
-          <span class="text-sm font-medium">NOMBRE PLANTA</span>
-          <input pInputText formControlName="nombre" data-testid="nombre" />
-        </label>
-        <label class="flex flex-col gap-1 sm:col-span-10">
-          <span class="text-sm font-medium">DIRECCION</span>
-          <input pInputText formControlName="direccion" data-testid="direccion" />
-        </label>
-        <label class="flex flex-col gap-1 sm:col-span-5">
-          <span class="text-sm font-medium">DISTRITO</span>
-          <input pInputText formControlName="distrito" />
-        </label>
-        <label class="flex flex-col gap-1 sm:col-span-5">
-          <span class="text-sm font-medium">PROVINCIA</span>
-          <input pInputText formControlName="provincia" />
-        </label>
-        <label class="flex flex-col gap-1 sm:col-span-5">
-          <span class="text-sm font-medium">DEPARTAMENTO</span>
-          <input pInputText formControlName="departamento" />
-        </label>
+        <div class="flex flex-col gap-1 sm:col-span-3">
+          <label for="f-ruc" class="text-sm font-medium">RUC</label>
+          <input
+            pInputText
+            id="f-ruc"
+            formControlName="ruc"
+            class="w-full"
+            [invalid]="invalido('ruc')"
+            [attr.aria-invalid]="invalido('ruc') || null"
+            [attr.aria-describedby]="invalido('ruc') ? 'f-ruc-error' : null"
+            data-testid="ruc"
+          />
+          @if (invalido('ruc')) {
+            <p-message id="f-ruc-error" severity="error" variant="simple" size="small">{{ error('ruc') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-3">
+          <label for="f-codigo" class="text-sm font-medium">CODIGO</label>
+          <input
+            pInputText
+            id="f-codigo"
+            formControlName="codigo"
+            class="w-full"
+            [invalid]="invalido('codigo')"
+            [attr.aria-invalid]="invalido('codigo') || null"
+            [attr.aria-describedby]="invalido('codigo') ? 'f-codigo-error' : null"
+            data-testid="codigo"
+          />
+          @if (invalido('codigo')) {
+            <p-message id="f-codigo-error" severity="error" variant="simple" size="small">{{ error('codigo') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-7">
+          <label for="f-nombre" class="text-sm font-medium">NOMBRE PLANTA</label>
+          <input
+            pInputText
+            id="f-nombre"
+            formControlName="nombre"
+            class="w-full"
+            [invalid]="invalido('nombre')"
+            [attr.aria-invalid]="invalido('nombre') || null"
+            [attr.aria-describedby]="invalido('nombre') ? 'f-nombre-error' : null"
+            data-testid="nombre"
+          />
+          @if (invalido('nombre')) {
+            <p-message id="f-nombre-error" severity="error" variant="simple" size="small">{{ error('nombre') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-10">
+          <label for="f-direccion" class="text-sm font-medium">DIRECCION</label>
+          <input
+            pInputText
+            id="f-direccion"
+            formControlName="direccion"
+            class="w-full"
+            [invalid]="invalido('direccion')"
+            [attr.aria-invalid]="invalido('direccion') || null"
+            [attr.aria-describedby]="invalido('direccion') ? 'f-direccion-error' : null"
+            data-testid="direccion"
+          />
+          @if (invalido('direccion')) {
+            <p-message id="f-direccion-error" severity="error" variant="simple" size="small">{{ error('direccion') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-5">
+          <label for="f-distrito" class="text-sm font-medium">DISTRITO</label>
+          <input pInputText id="f-distrito" formControlName="distrito" class="w-full" />
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-5">
+          <label for="f-provincia" class="text-sm font-medium">PROVINCIA</label>
+          <input pInputText id="f-provincia" formControlName="provincia" class="w-full" />
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-5">
+          <label for="f-departamento" class="text-sm font-medium">DEPARTAMENTO</label>
+          <input pInputText id="f-departamento" formControlName="departamento" class="w-full" />
+        </div>
         <div class="flex items-center gap-2 sm:col-span-5">
           <p-toggleswitch formControlName="estado" inputId="f-estado" />
           <label for="f-estado" class="text-sm font-medium">Activo</label>
@@ -233,6 +293,20 @@ export class MaestroFactorias implements OnInit {
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  invalido(nombre: string): boolean {
+    const c = this.form.get(nombre);
+    return !!c && c.invalid && (c.touched || c.dirty);
+  }
+
+  error(nombre: string): string {
+    const e = this.form.get(nombre)?.errors;
+    if (!e) return '';
+    if (e['required']) return 'Campo requerido';
+    if (e['maxlength']) return 'Máximo 8 dígitos';
+    if (e['digits']) return 'Solo dígitos';
+    return 'Valor no válido';
   }
 
   private avisarError(err: unknown): void {

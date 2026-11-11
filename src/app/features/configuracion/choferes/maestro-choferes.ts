@@ -4,13 +4,14 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 
 import { SessionService } from '../../../core/auth';
 import type { Chofer, ErrorResponse, Vehiculo } from '../../../core/models';
 import { NotificacionService } from '../../../core/notifications';
 import { ChoferService, VehiculoService } from '../../../core/services';
-import { digitos } from '../../../core/validators';
+import { digitos, soloDigitos } from '../../../core/validators';
 import {
   ConfirmacionService,
   DialogoCrud,
@@ -25,11 +26,13 @@ import {
 const MENSAJE_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
 
 type VehiculoOpcion = Vehiculo & { etiqueta: string };
+/** Fila de la tabla: `vehiculoTexto` es solo de presentación/búsqueda y nunca se envía. */
+type ChoferFila = Chofer & { vehiculoTexto: string };
 
 /** Maestro de Choferes. Port de `maestro-choferes` de v1. */
 @Component({
   selector: 'app-maestro-choferes',
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, SelectModule, Tabla, TablaCelda, DialogoCrud],
+  imports: [ReactiveFormsModule, MessageModule, ButtonModule, InputTextModule, SelectModule, Tabla, TablaCelda, DialogoCrud],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-tabla [filas]="choferes()" [columnas]="columnas" [acciones]="acciones" [cargando]="cargando()" (accion)="alAccion($event)">
@@ -46,26 +49,79 @@ type VehiculoOpcion = Vehiculo & { etiqueta: string };
       (guardar)="guardar()"
     >
       <form [formGroup]="form" (ngSubmit)="guardar()" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">NOMBRES</span>
-          <input pInputText formControlName="nombres" data-testid="nombres" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">APELLIDOS</span>
-          <input pInputText formControlName="apellidos" data-testid="apellidos" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">DNI</span>
-          <input pInputText formControlName="dni" maxlength="8" inputmode="numeric" data-testid="dni" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">TELEFONO</span>
-          <input pInputText formControlName="telefono" inputmode="numeric" data-testid="telefono" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">EMAIL</span>
-          <input pInputText formControlName="email" data-testid="email" />
-        </label>
+        <div class="flex flex-col gap-1">
+          <label for="c-nombres" class="text-sm font-medium">NOMBRES</label>
+          <input
+            pInputText
+            id="c-nombres"
+            formControlName="nombres"
+            class="w-full"
+            [invalid]="invalido('nombres')"
+            [attr.aria-invalid]="invalido('nombres') || null"
+            [attr.aria-describedby]="invalido('nombres') ? 'c-nombres-error' : null"
+            data-testid="nombres"
+          />
+          @if (invalido('nombres')) {
+            <p-message id="c-nombres-error" severity="error" variant="simple" size="small">{{ error('nombres') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="c-apellidos" class="text-sm font-medium">APELLIDOS</label>
+          <input
+            pInputText
+            id="c-apellidos"
+            formControlName="apellidos"
+            class="w-full"
+            [invalid]="invalido('apellidos')"
+            [attr.aria-invalid]="invalido('apellidos') || null"
+            [attr.aria-describedby]="invalido('apellidos') ? 'c-apellidos-error' : null"
+            data-testid="apellidos"
+          />
+          @if (invalido('apellidos')) {
+            <p-message id="c-apellidos-error" severity="error" variant="simple" size="small">{{ error('apellidos') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="c-dni" class="text-sm font-medium">DNI</label>
+          <input
+            pInputText
+            id="c-dni"
+            formControlName="dni"
+            maxlength="8"
+            inputmode="numeric"
+            (input)="filtrarDigitos('dni', $event)"
+            class="w-full"
+            [invalid]="invalido('dni')"
+            [attr.aria-invalid]="invalido('dni') || null"
+            [attr.aria-describedby]="invalido('dni') ? 'c-dni-error' : null"
+            data-testid="dni"
+          />
+          @if (invalido('dni')) {
+            <p-message id="c-dni-error" severity="error" variant="simple" size="small">{{ error('dni') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="c-telefono" class="text-sm font-medium">TELEFONO</label>
+          <input
+            pInputText
+            id="c-telefono"
+            formControlName="telefono"
+            inputmode="numeric"
+            (input)="filtrarDigitos('telefono', $event)"
+            class="w-full"
+            [invalid]="invalido('telefono')"
+            [attr.aria-invalid]="invalido('telefono') || null"
+            [attr.aria-describedby]="invalido('telefono') ? 'c-telefono-error' : null"
+            data-testid="telefono"
+          />
+          @if (invalido('telefono')) {
+            <p-message id="c-telefono-error" severity="error" variant="simple" size="small">{{ error('telefono') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="c-email" class="text-sm font-medium">EMAIL</label>
+          <input pInputText id="c-email" formControlName="email" class="w-full" />
+        </div>
         <div class="flex flex-col gap-1">
           <label for="c-vehiculo" class="text-sm font-medium">VEHICULO ASIGNADO (Tracto/Bombona/Marca)</label>
           <p-select
@@ -74,20 +130,55 @@ type VehiculoOpcion = Vehiculo & { etiqueta: string };
             [options]="vehiculos()"
             optionLabel="etiqueta"
             dataKey="id"
+            (onChange)="seleccionarVehiculo($event.value)"
             placeholder="Seleccione"
             appendTo="body"
-            (onChange)="seleccionarVehiculo($event.value)"
+            class="w-full"
+            [pt]="{
+              label: {
+                'aria-describedby': invalido('vehiculo') ? 'c-vehiculo-error' : null,
+                'aria-invalid': invalido('vehiculo') || null,
+              },
+            }"
+            [invalid]="invalido('vehiculo')"
             data-testid="vehiculo"
           />
+          @if (invalido('vehiculo')) {
+            <p-message id="c-vehiculo-error" severity="error" variant="simple" size="small">{{ error('vehiculo') }}</p-message>
+          }
         </div>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">NRO. CERT. INSCRIPCION</span>
-          <input pInputText formControlName="certificado" data-testid="certificado" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">NRO. LICENCIA CONDUCIR</span>
-          <input pInputText formControlName="licencia" data-testid="licencia" />
-        </label>
+        <div class="flex flex-col gap-1">
+          <label for="c-certificado" class="text-sm font-medium">NRO. CERT. INSCRIPCION</label>
+          <input
+            pInputText
+            id="c-certificado"
+            formControlName="certificado"
+            class="w-full"
+            [invalid]="invalido('certificado')"
+            [attr.aria-invalid]="invalido('certificado') || null"
+            [attr.aria-describedby]="invalido('certificado') ? 'c-certificado-error' : null"
+            data-testid="certificado"
+          />
+          @if (invalido('certificado')) {
+            <p-message id="c-certificado-error" severity="error" variant="simple" size="small">{{ error('certificado') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="c-licencia" class="text-sm font-medium">NRO. LICENCIA CONDUCIR</label>
+          <input
+            pInputText
+            id="c-licencia"
+            formControlName="licencia"
+            class="w-full"
+            [invalid]="invalido('licencia')"
+            [attr.aria-invalid]="invalido('licencia') || null"
+            [attr.aria-describedby]="invalido('licencia') ? 'c-licencia-error' : null"
+            data-testid="licencia"
+          />
+          @if (invalido('licencia')) {
+            <p-message id="c-licencia-error" severity="error" variant="simple" size="small">{{ error('licencia') }}</p-message>
+          }
+        </div>
       </form>
     </app-dialogo-crud>
   `,
@@ -99,7 +190,7 @@ export class MaestroChoferes implements OnInit {
   private readonly avisos = inject(NotificacionService);
   private readonly sesion = inject(SessionService);
 
-  readonly choferes = signal<Chofer[]>([]);
+  readonly choferes = signal<ChoferFila[]>([]);
   readonly vehiculos = signal<VehiculoOpcion[]>([]);
   readonly cargando = signal(false);
   readonly dialogoVisible = signal(false);
@@ -117,20 +208,19 @@ export class MaestroChoferes implements OnInit {
     licencia: ['', Validators.required],
   });
 
-  readonly columnas: ColumnaTabla<Chofer>[] = [
+  readonly columnas: ColumnaTabla<ChoferFila>[] = [
     { campo: 'id', id: 'item', titulo: 'Item', ordenable: false, buscable: false, ancho: '4rem' },
     { campo: 'nombres', titulo: 'Nombres' },
     { campo: 'apellidos', titulo: 'Apellidos' },
     { campo: 'dni', titulo: 'DNI', ancho: '8rem' },
     { campo: 'licencia', titulo: 'Licencia Conductor' },
     {
-      campo: 'vehiculo.placaTracto',
+      campo: 'vehiculoTexto',
       titulo: 'Vehiculo asignado (tracto / bombona)',
-      formato: (_v, c) => `${c.vehiculo?.placaTracto ?? ''} / ${c.vehiculo?.placaBombona ?? ''}`,
     },
   ];
 
-  readonly acciones = [accionEditar<Chofer>(), accionEliminar<Chofer>()];
+  readonly acciones = [accionEditar<ChoferFila>(), accionEliminar<ChoferFila>()];
 
   ngOnInit(): void {
     void this.listar();
@@ -145,7 +235,10 @@ export class MaestroChoferes implements OnInit {
   async listar(): Promise<void> {
     this.cargando.set(true);
     try {
-      this.choferes.set(await firstValueFrom(this.servicio.listarTodosLosChoferes(1)));
+      const datos = await firstValueFrom(this.servicio.listarTodosLosChoferes(1));
+      this.choferes.set(
+        datos.map((ch) => ({ ...ch, vehiculoTexto: `${ch.vehiculo?.placaTracto ?? ''} / ${ch.vehiculo?.placaBombona ?? ''}` })),
+      );
     } catch (err) {
       this.avisarError(err);
     } finally {
@@ -173,7 +266,7 @@ export class MaestroChoferes implements OnInit {
     this.form.patchValue({ certificado: vehiculo?.licencia ?? '' });
   }
 
-  async alAccion({ accion, fila }: EventoAccionTabla<Chofer>): Promise<void> {
+  async alAccion({ accion, fila }: EventoAccionTabla<ChoferFila>): Promise<void> {
     if (accion === 'editar') {
       this.abrir(fila);
     } else if (accion === 'eliminar') {
@@ -219,6 +312,30 @@ export class MaestroChoferes implements OnInit {
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Como `validaDigitos` de v1: solo admite dígitos al teclear y al pegar. */
+  filtrarDigitos(nombre: 'dni' | 'telefono', evento: Event): void {
+    const el = evento.target as HTMLInputElement;
+    const limpio = soloDigitos(el.value);
+    if (limpio !== el.value) {
+      el.value = limpio;
+      this.form.controls[nombre].setValue(limpio);
+    }
+  }
+
+  invalido(nombre: string): boolean {
+    const c = this.form.get(nombre);
+    return !!c && c.invalid && (c.touched || c.dirty);
+  }
+
+  error(nombre: string): string {
+    const e = this.form.get(nombre)?.errors;
+    if (!e) return '';
+    if (e['required']) return 'Campo requerido';
+    if (e['maxlength']) return 'Máximo 8 dígitos';
+    if (e['digits']) return 'Solo dígitos';
+    return 'Valor no válido';
   }
 
   private avisarError(err: unknown): void {

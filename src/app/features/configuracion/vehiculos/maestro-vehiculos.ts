@@ -4,6 +4,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 import type { ErrorResponse, Vehiculo } from '../../../core/models';
@@ -25,7 +26,7 @@ const MENSAJE_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
 /** Maestro de Vehículos. Port de `maestro-vehiculos` de v1. */
 @Component({
   selector: 'app-maestro-vehiculos',
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, ToggleSwitchModule, Tabla, TablaCelda, DialogoCrud],
+  imports: [ReactiveFormsModule, MessageModule, ButtonModule, InputTextModule, ToggleSwitchModule, Tabla, TablaCelda, DialogoCrud],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-tabla [filas]="vehiculos()" [columnas]="columnas" [acciones]="acciones" [cargando]="cargando()" (accion)="alAccion($event)">
@@ -42,22 +43,70 @@ const MENSAJE_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
       (guardar)="guardar()"
     >
       <form [formGroup]="form" (ngSubmit)="guardar()" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">PLACA TRACTO</span>
-          <input pInputText formControlName="tracto" data-testid="tracto" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">PLACA BOMBONA</span>
-          <input pInputText formControlName="bombona" data-testid="bombona" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">MARCA/MODELO</span>
-          <input pInputText formControlName="marca" data-testid="marca" />
-        </label>
-        <label class="flex flex-col gap-1">
-          <span class="text-sm font-medium">CERTIFICADO MTC</span>
-          <input pInputText formControlName="certificado" data-testid="certificado" />
-        </label>
+        <div class="flex flex-col gap-1">
+          <label for="v-tracto" class="text-sm font-medium">PLACA TRACTO</label>
+          <input
+            pInputText
+            id="v-tracto"
+            formControlName="tracto"
+            class="w-full"
+            [invalid]="invalido('tracto')"
+            [attr.aria-invalid]="invalido('tracto') || null"
+            [attr.aria-describedby]="invalido('tracto') ? 'v-tracto-error' : null"
+            data-testid="tracto"
+          />
+          @if (invalido('tracto')) {
+            <p-message id="v-tracto-error" severity="error" variant="simple" size="small">{{ error('tracto') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="v-bombona" class="text-sm font-medium">PLACA BOMBONA</label>
+          <input
+            pInputText
+            id="v-bombona"
+            formControlName="bombona"
+            class="w-full"
+            [invalid]="invalido('bombona')"
+            [attr.aria-invalid]="invalido('bombona') || null"
+            [attr.aria-describedby]="invalido('bombona') ? 'v-bombona-error' : null"
+            data-testid="bombona"
+          />
+          @if (invalido('bombona')) {
+            <p-message id="v-bombona-error" severity="error" variant="simple" size="small">{{ error('bombona') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="v-marca" class="text-sm font-medium">MARCA/MODELO</label>
+          <input
+            pInputText
+            id="v-marca"
+            formControlName="marca"
+            class="w-full"
+            [invalid]="invalido('marca')"
+            [attr.aria-invalid]="invalido('marca') || null"
+            [attr.aria-describedby]="invalido('marca') ? 'v-marca-error' : null"
+            data-testid="marca"
+          />
+          @if (invalido('marca')) {
+            <p-message id="v-marca-error" severity="error" variant="simple" size="small">{{ error('marca') }}</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="v-certificado" class="text-sm font-medium">CERTIFICADO MTC</label>
+          <input
+            pInputText
+            id="v-certificado"
+            formControlName="certificado"
+            class="w-full"
+            [invalid]="invalido('certificado')"
+            [attr.aria-invalid]="invalido('certificado') || null"
+            [attr.aria-describedby]="invalido('certificado') ? 'v-certificado-error' : null"
+            data-testid="certificado"
+          />
+          @if (invalido('certificado')) {
+            <p-message id="v-certificado-error" severity="error" variant="simple" size="small">{{ error('certificado') }}</p-message>
+          }
+        </div>
         <div class="flex items-center gap-2">
           <p-toggleswitch formControlName="estado" inputId="v-estado" />
           <label for="v-estado" class="text-sm font-medium">Operativo</label>
@@ -168,6 +217,20 @@ export class MaestroVehiculos implements OnInit {
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  invalido(nombre: string): boolean {
+    const c = this.form.get(nombre);
+    return !!c && c.invalid && (c.touched || c.dirty);
+  }
+
+  error(nombre: string): string {
+    const e = this.form.get(nombre)?.errors;
+    if (!e) return '';
+    if (e['required']) return 'Campo requerido';
+    if (e['maxlength']) return 'Máximo 8 dígitos';
+    if (e['digits']) return 'Solo dígitos';
+    return 'Valor no válido';
   }
 
   private avisarError(err: unknown): void {
