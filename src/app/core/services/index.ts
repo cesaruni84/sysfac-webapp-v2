@@ -15,6 +15,5 @@ export * from './liquidacion/impuesto.service';
 export * from './liquidacion/liquidacion.service';
 export * from './liquidacion/orden-servicio.service';
 export * from './util/tipos-genericos.service';
-export * from './export/descarga';
-export * from './export/excel.service';
-export * from './export/pdf.service';
+// Los servicios de exportación (exceljs/jspdf) NO se reexportan aquí para no inflar los chunks
+// de las pantallas que no exportan: importar de './export' (core/services/export).

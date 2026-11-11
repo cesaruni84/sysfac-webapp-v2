@@ -191,7 +191,9 @@ import { SessionService } from '../../core/auth';
 import { CargaGlobalService } from '../../core/carga';
 import { EstadoLiquidacion, type Liquidacion } from '../../core/models';
 import { NotificacionService } from '../../core/notifications';
-import { ExcelService, LiquidacionService } from '../../core/services';
+import { LiquidacionService } from '../../core/services';
+// Exportación: índice propio, para no arrastrar exceljs/jspdf a las pantallas que no exportan.
+import { ExcelService } from '../../core/services/export';
 import {
   Tabla,
   TablaCelda,
