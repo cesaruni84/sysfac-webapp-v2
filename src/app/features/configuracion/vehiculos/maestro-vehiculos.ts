@@ -219,17 +219,15 @@ export class MaestroVehiculos implements OnInit {
     }
   }
 
-  invalido(nombre: string): boolean {
+  invalido(nombre: keyof MaestroVehiculos['form']['controls']): boolean {
     const c = this.form.get(nombre);
     return !!c && c.invalid && (c.touched || c.dirty);
   }
 
-  error(nombre: string): string {
+  error(nombre: keyof MaestroVehiculos['form']['controls']): string {
     const e = this.form.get(nombre)?.errors;
     if (!e) return '';
-    if (e['required']) return 'Campo requerido';
-    if (e['maxlength']) return 'Máximo 8 dígitos';
-    if (e['digits']) return 'Solo dígitos';
+    if (e['required']) return '* REQUERIDO';
     return 'Valor no válido';
   }
 

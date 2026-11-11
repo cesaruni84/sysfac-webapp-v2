@@ -141,9 +141,9 @@ describe('MaestroChoferes', () => {
     c.form.controls.nombres.markAsTouched();
     c.form.controls.dni.markAsDirty();
     fixture.detectChanges();
-    expect(c.error('nombres')).toBe('Campo requerido');
-    expect(c.error('dni')).toBe('Campo requerido');
-    expect(document.querySelector('#c-nombres-error')?.textContent).toContain('Campo requerido');
+    expect(c.error('nombres')).toBe('* REQUERIDO');
+    expect(c.error('dni')).toBe('* REQUERIDO');
+    expect(document.querySelector('#c-nombres-error')?.textContent).toContain('* REQUERIDO');
     c.form.controls.dni.setValue('123456789');
     expect(c.error('dni')).toBe('Máximo 8 dígitos');
     c.form.controls.dni.setValue('1234abcd');
@@ -162,6 +162,25 @@ describe('MaestroChoferes', () => {
     input.dispatchEvent(new Event('input'));
     expect(input.value).toBe('1234');
     expect(c.form.controls.dni.value).toBe('1234');
+  });
+
+  it('al pegar "1234-5678" en el DNI queda "12345678"', () => {
+    const fixture = crear();
+    const c = fixture.componentInstance;
+    c.abrir();
+    fixture.detectChanges();
+    const input = document.querySelector('#c-dni') as HTMLInputElement;
+    input.value = '1234-5678';
+    input.dispatchEvent(new Event('input'));
+    expect(input.value).toBe('12345678');
+    expect(c.form.controls.dni.value).toBe('12345678');
+  });
+
+  it('el combo de vehículo tiene nombre accesible (aria-labelledby)', () => {
+    const fixture = crear();
+    fixture.componentInstance.abrir();
+    fixture.detectChanges();
+    expect(document.querySelector('[role="combobox"]#c-vehiculo')?.getAttribute('aria-labelledby')).toBe('c-vehiculo-label');
   });
 
   it('el buscador de la tabla encuentra por placa de bombona', async () => {
