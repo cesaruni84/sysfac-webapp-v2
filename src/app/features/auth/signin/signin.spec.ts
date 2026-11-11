@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { FormGroup } from '@angular/forms';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
@@ -26,7 +27,7 @@ describe('Signin', () => {
     const fixture = TestBed.createComponent(Signin);
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
-      form: Signin['form' & keyof Signin];
+      form: FormGroup;
       empresas: () => Empresa[];
       cargando: () => boolean;
       error: () => string | null;
@@ -36,7 +37,7 @@ describe('Signin', () => {
   }
 
   function llenar(cmp: ReturnType<typeof crear>['cmp']) {
-    (cmp.form as { patchValue: (v: object) => void }).patchValue({
+    cmp.form.patchValue({
       username: 'u',
       password: 'p',
       empresaSelected: empresa,
@@ -53,6 +54,12 @@ describe('Signin', () => {
     const { cmp } = crear();
     expect(logout).toHaveBeenCalledOnce();
     expect(cmp.empresas()).toEqual([empresa]);
+  });
+
+  it('tiene un h1 con el título', () => {
+    const { fixture } = crear();
+    const h1 = (fixture.nativeElement as HTMLElement).querySelector('h1');
+    expect(h1?.textContent).toContain('MÓDULO DE FACTURACIÓN ONLINE');
   });
 
   it('el botón Ingresar está deshabilitado con el formulario inválido', () => {
@@ -101,12 +108,22 @@ describe('Signin', () => {
 
   it.each([403, 404, 409])('muestra el codeMessage del error %i', (status) => {
     login.mockReturnValue(
-      throwError(() => new HttpErrorResponse({ status, error: { codeMessage: 'Credenciales inválidas' } })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status,
+            error: {
+              codeMessage: 'MFA2002',
+              errorMessage: 'Usuario y/o contraseña incorrectos. Intente nuevamente.',
+            },
+          }),
+      ),
     );
     const { cmp } = crear();
     llenar(cmp);
     cmp.signin();
-    expect(cmp.error()).toBe('Credenciales inválidas');
+    expect(cmp.error()).toBe('Usuario y/o contraseña incorrectos. Intente nuevamente.');
+    expect(cmp.error()).not.toBe('MFA2002');
     expect(cmp.cargando()).toBe(false);
     expect(navigate).not.toHaveBeenCalled();
   });

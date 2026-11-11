@@ -9,13 +9,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { AuthService } from '../../../core/auth';
-import { Empresa, UsuarioForm } from '../../../core/models';
+import { Empresa, ErrorResponse, UsuarioForm } from '../../../core/models';
 import { EmpresaService } from '../../../core/services/empresas/empresa.service';
 
 /** URL a la que se navega tras un login correcto (igual que v1). */
 export const URL_TRAS_LOGIN = '/dashboard';
 
-/** Mensaje cuando el backend no devuelve `codeMessage` (p. ej. error de red). */
+/** Mensaje cuando el backend no devuelve `errorMessage` (p. ej. error de red). */
 export const MENSAJE_LOGIN_GENERICO = 'No se pudo iniciar sesión. Intente nuevamente.';
 
 /**
@@ -25,7 +25,15 @@ export const MENSAJE_LOGIN_GENERICO = 'No se pudo iniciar sesión. Intente nueva
 @Component({
   selector: 'app-signin',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, ButtonModule, CardModule, InputTextModule, MessageModule, SelectModule],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    MessageModule,
+    SelectModule,
+  ],
+  host: { class: 'block w-full max-w-md' },
   templateUrl: './signin.html',
 })
 export class Signin {
@@ -68,8 +76,9 @@ export class Signin {
         next: () => void this.router.navigate([URL_TRAS_LOGIN]),
         error: (err: HttpErrorResponse) => {
           this.cargando.set(false);
-          // Casos 403/404/409 de v1: el backend envía el texto en `codeMessage`.
-          this.error.set(err.error?.codeMessage ?? MENSAJE_LOGIN_GENERICO);
+          // Casos 403/404/409 de v1: se muestra `errorMessage` (`codeMessage` es solo el código).
+          const cuerpo = err.error as Partial<ErrorResponse> | null;
+          this.error.set(cuerpo?.errorMessage || MENSAJE_LOGIN_GENERICO);
         },
       });
   }
