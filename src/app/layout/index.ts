@@ -1,9 +1,12 @@
 /**
- * Layout de la zona privada (tarea 3.2).
+ * Layouts de la aplicación.
+ * - Zona privada (3.2): `LayoutShell`.
+ * - Zona pública `/sessions` (3.4): `LayoutAuth`, con las páginas `PaginaNoEncontrada` (404)
+ *   y `PaginaError`.
  *
- * `LayoutShell` se carga de forma diferida desde `app.routes.ts`:
- * `loadComponent: () => import('./layout/shell/shell').then((m) => m.LayoutShell)`
- * (se importa el archivo directo, no este índice, para no arrastrar el resto al bundle inicial).
+ * `app.routes.ts` los carga de forma diferida importando el archivo directo, no este índice,
+ * para no arrastrar el resto al bundle inicial. Por ejemplo:
+ * `loadComponent: () => import('./layout/shell/shell').then((m) => m.LayoutShell)`.
  */
 export * from './auth/auth-layout';
 export * from './breadcrumb/breadcrumb';
