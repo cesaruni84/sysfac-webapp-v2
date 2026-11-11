@@ -1,16 +1,12 @@
 import { Routes } from '@angular/router';
 
-/**
- * Rutas del maestro `clientes` (montado en /forms/configuracion/clientes). Tarea 4.5.
- * STUB de la oleada 5: muestra PlaceholderPage hasta que se implemente la pantalla.
- */
+/** Rutas del maestro `clientes` (montado en /forms/configuracion/clientes). Tarea 4.5. */
 const routes: Routes = [
   {
     path: '',
     title: 'Clientes | SYSFAC',
     data: { title: 'Clientes', breadcrumb: 'Clientes' },
-    loadComponent: () =>
-      import('../../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+    loadComponent: () => import('./maestro-clientes').then((m) => m.MaestroClientes),
   },
 ];
 
