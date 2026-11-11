@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { usuarioMock } from './core/auth/auth.testing';
 import { CURRENT_USER_KEY } from './core/auth/session.service';
 import { MENU_NEGOCIO, construirBreadcrumb } from './core/navigation';
+import { provideHttpVacio } from './testing/http-vacio';
 
 function enlaces(items: readonly MenuItem[]): string[] {
   return items.flatMap((i) => [
@@ -15,10 +16,11 @@ function enlaces(items: readonly MenuItem[]): string[] {
   ]);
 }
 
-describe('navegación a nivel de app', () => {
+// Timeout amplio: cada navegación carga de verdad los chunks diferidos (arranque en frío).
+describe('navegación a nivel de app', { timeout: 20_000 }, () => {
   beforeEach(() => {
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(usuarioMock));
-    TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
+    TestBed.configureTestingModule({ providers: [provideRouter(routes), provideHttpVacio()] });
   });
 
   async function snapshotDe(url: string) {
