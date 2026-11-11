@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -24,6 +24,9 @@ import {
 
 /** Mensaje genérico de v1 cuando el backend no devuelve `errorMessage`. */
 export const MENSAJE_ERROR_GENERICO = 'Ocurrió un error inesperado!!, intenta nuevamente.';
+
+/** Cliente con la glosa del tipo de documento calculada para la grilla. */
+type FilaCliente = Cliente & { tipoDocGlosa: string };
 
 interface FormularioCliente {
   tipoDocumento: FormControl<number>;
@@ -53,7 +56,7 @@ interface FormularioCliente {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-tabla
-      [filas]="clientes()"
+      [filas]="filas()"
       [columnas]="columnas"
       [acciones]="acciones"
       [cargando]="cargando()"
@@ -67,7 +70,7 @@ interface FormularioCliente {
         data-testid="nuevo"
         (onClick)="abrir()"
       />
-      <ng-template appTablaCelda="item" [tipar]="clientes()" let-i="indice">{{ i + 1 }}</ng-template>
+      <ng-template appTablaCelda="item" [tipar]="filas()" let-i="indice">{{ i + 1 }}</ng-template>
     </app-tabla>
 
     <app-dialogo-crud
@@ -93,7 +96,7 @@ interface FormularioCliente {
         </div>
         <label class="flex flex-col gap-1 sm:col-span-2">
           <span class="text-sm font-medium">DOCUMENTO</span>
-          <input pInputText pKeyFilter="int" formControlName="ruc" maxlength="12" data-testid="ruc" />
+          <input pInputText pKeyFilter="pint" formControlName="ruc" maxlength="12" data-testid="ruc" />
           @if (invalido('ruc')) {
             <small class="text-red-500">* REQUERIDO</small>
           }
@@ -146,6 +149,10 @@ export class MaestroClientes {
     .map((t) => ({ ...t, descripcion: (t.descripcion ?? '').trim() }));
 
   readonly clientes = signal<Cliente[]>([]);
+  /** Filas de la grilla: cliente + glosa del tipo de documento (solo para mostrar y buscar; no se envía). */
+  readonly filas = computed<FilaCliente[]>(() =>
+    this.clientes().map((c) => ({ ...c, tipoDocGlosa: this.glosaTipoDoc(c.tipoDoc) })),
+  );
   readonly cargando = signal(false);
   readonly dialogoVisible = signal(false);
   readonly guardando = signal(false);
@@ -163,14 +170,9 @@ export class MaestroClientes {
     departamento: new FormControl('', { nonNullable: true }),
   });
 
-  readonly columnas: ColumnaTabla<Cliente>[] = [
+  readonly columnas: ColumnaTabla<FilaCliente>[] = [
     { campo: 'id', id: 'item', titulo: 'Item', ordenable: false, buscable: false, ancho: '4rem' },
-    {
-      campo: 'tipoDoc',
-      titulo: 'Tipo Doc',
-      ancho: '7rem',
-      formato: (_v, c) => this.glosaTipoDoc(c.tipoDoc),
-    },
+    { campo: 'tipoDocGlosa', id: 'tipoDoc', titulo: 'Tipo Doc', ancho: '7rem' },
     { campo: 'ruc', titulo: 'Nro. Documento', ancho: '10rem' },
     { campo: 'razonSocial', titulo: 'Razón Social', ancho: '18rem' },
     { campo: 'direccion', titulo: 'Dirección', ancho: '20rem' },
@@ -180,7 +182,7 @@ export class MaestroClientes {
   ];
 
   /** v1 solo ofrece "Consultar" (abre el popup de edición); la baja está deshabilitada. */
-  readonly acciones: AccionTabla<Cliente>[] = [
+  readonly acciones: AccionTabla<FilaCliente>[] = [
     { id: 'editar', icono: 'pi pi-search', tooltip: 'Consultar', severidad: 'info' },
   ];
 
@@ -226,7 +228,7 @@ export class MaestroClientes {
     this.dialogoVisible.set(true);
   }
 
-  alAccion({ accion, fila }: EventoAccionTabla<Cliente>): void {
+  alAccion({ accion, fila }: EventoAccionTabla<FilaCliente>): void {
     if (accion === 'editar') this.abrir(fila);
   }
 

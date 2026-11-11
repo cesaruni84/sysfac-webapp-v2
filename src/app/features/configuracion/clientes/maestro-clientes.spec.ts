@@ -93,13 +93,23 @@ describe('MaestroClientes', () => {
   });
 
   it('la edición precarga los datos (incluido el tipo de documento) y envía el id', async () => {
-    comp.alAccion({ accion: 'editar', fila: datos[1] });
+    comp.alAccion({ accion: 'editar', fila: comp.filas()[1] });
     expect(comp.form.getRawValue()).toMatchObject({ tipoDocumento: 2, ruc: '12345678', nombre: 'Juan Perez' });
     comp.form.patchValue({ telefono: '555' });
     await comp.guardar();
-    expect(actualizarCliente).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 4, tipoDoc: 2, telefono: '555', nombreComercial: '?' }),
-    );
+    expect(actualizarCliente).toHaveBeenCalledWith({
+      tipoDoc: 2,
+      ruc: '12345678',
+      razonSocial: 'Juan Perez',
+      nombreComercial: '?',
+      telefono: '555',
+      email: '',
+      direccion: '',
+      distrito: '',
+      provincia: '',
+      departamento: '',
+      id: 4,
+    });
     expect(exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
   });
 

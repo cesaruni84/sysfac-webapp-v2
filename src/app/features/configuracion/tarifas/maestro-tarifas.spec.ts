@@ -114,10 +114,34 @@ describe('MaestroTarifas', () => {
     });
     comp.form.patchValue({ estado: false });
     await comp.guardar();
-    expect(actualizarTarifa).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 10, estado: 1, importe: 150.5, turno: { id: 1 } }),
-    );
+    expect(actualizarTarifa).toHaveBeenCalledWith({
+      origen: lima,
+      destino: callao,
+      importe: 150.5,
+      moneda: 1,
+      notas: 'n',
+      empresa: usuarioMock.empresa,
+      turno: { id: 1 },
+      estado: 1,
+      id: 10,
+    });
     expect(exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
+  });
+
+  it('el alta sin moneda envía moneda: null', async () => {
+    comp.abrir();
+    comp.form.patchValue({ origen: lima, destino: callao, importe: 10 });
+    await comp.guardar();
+    expect(registrarTarifa).toHaveBeenCalledWith({
+      origen: lima,
+      destino: callao,
+      importe: 10,
+      moneda: null,
+      notas: '',
+      empresa: usuarioMock.empresa,
+      turno: { id: 1 },
+      estado: 0,
+    });
   });
 
   it('la baja pide confirmación, elimina, avisa con alertMessage y recarga', async () => {

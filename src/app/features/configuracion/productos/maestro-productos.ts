@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -36,6 +36,9 @@ export function glosaTipoProducto(id: number | undefined | null): string {
   return TIPOS_PRODUCTO.find((t) => t.id === id)?.descripcion ?? '';
 }
 
+/** Producto con la glosa del tipo calculada para la grilla. */
+type FilaProducto = Producto & { tipoGlosa: string };
+
 interface FormularioProducto {
   tipoProducto: FormControl<number>;
   codigo: FormControl<string>;
@@ -61,7 +64,7 @@ interface FormularioProducto {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-tabla
-      [filas]="productos()"
+      [filas]="filas()"
       [columnas]="columnas"
       [acciones]="acciones"
       [cargando]="cargando()"
@@ -74,7 +77,7 @@ interface FormularioProducto {
         data-testid="nuevo"
         (onClick)="abrir()"
       />
-      <ng-template appTablaCelda="item" [tipar]="productos()" let-i="indice">{{ i + 1 }}</ng-template>
+      <ng-template appTablaCelda="item" [tipar]="filas()" let-i="indice">{{ i + 1 }}</ng-template>
     </app-tabla>
 
     <app-dialogo-crud
@@ -155,6 +158,10 @@ export class MaestroProductos {
 
   readonly tipos = TIPOS_PRODUCTO;
   readonly productos = signal<Producto[]>([]);
+  /** Filas de la grilla: producto + glosa del tipo (solo para mostrar y buscar; no se envía). */
+  readonly filas = computed<FilaProducto[]>(() =>
+    this.productos().map((p) => ({ ...p, tipoGlosa: glosaTipoProducto(p.categoria?.id) })),
+  );
   readonly cargando = signal(false);
   readonly dialogoVisible = signal(false);
   readonly guardando = signal(false);
@@ -169,22 +176,17 @@ export class MaestroProductos {
     precio: new FormControl<number | null>(0, numero),
   });
 
-  readonly columnas: ColumnaTabla<Producto>[] = [
+  readonly columnas: ColumnaTabla<FilaProducto>[] = [
     { campo: 'id', id: 'item', titulo: 'Item', ordenable: false, buscable: false, ancho: '4rem' },
-    {
-      campo: 'categoria.id',
-      id: 'tipo',
-      titulo: 'Tipo',
-      formato: (_v, p) => glosaTipoProducto(p.categoria?.id),
-    },
+    { campo: 'tipoGlosa', id: 'tipo', titulo: 'Tipo' },
     { campo: 'nombre', titulo: 'Nombre' },
     { campo: 'codigo', titulo: 'Código' },
-    { campo: 'stock', titulo: 'Stock', tipo: 'numero', digitos: '1.2-2' },
+    { campo: 'stock', titulo: 'Stock', tipo: 'numero', digitos: '1.2-2', alineacion: 'izquierda' },
     { campo: 'fechaIngreso', titulo: 'Fecha Registro', tipo: 'fecha' },
   ];
 
   /** v1 solo ofrece "Consultar" (abre el popup de edición); la baja está deshabilitada. */
-  readonly acciones: AccionTabla<Producto>[] = [
+  readonly acciones: AccionTabla<FilaProducto>[] = [
     { id: 'editar', icono: 'pi pi-search', tooltip: 'Consultar', severidad: 'info' },
   ];
 
@@ -221,7 +223,7 @@ export class MaestroProductos {
     this.dialogoVisible.set(true);
   }
 
-  alAccion({ accion, fila }: EventoAccionTabla<Producto>): void {
+  alAccion({ accion, fila }: EventoAccionTabla<FilaProducto>): void {
     if (accion === 'editar') this.abrir(fila);
   }
 

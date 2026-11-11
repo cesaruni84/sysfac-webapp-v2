@@ -73,6 +73,11 @@ describe('MaestroProductos', () => {
     expect(glosaTipoProducto(undefined)).toBe('');
   });
 
+  it('las filas llevan la glosa del tipo (el buscador la encuentra) sin alterar los datos', () => {
+    expect(comp.filas().map((f) => f.tipoGlosa)).toEqual(['BIEN', 'SERVICIO']);
+    expect(comp.productos()[0]).not.toHaveProperty('tipoGlosa');
+  });
+
   it('el alta envía el JSON de v1 con valores por defecto', async () => {
     comp.abrir();
     expect(comp.form.getRawValue()).toMatchObject({ tipoProducto: 1, stock: 0, precio: 0 });
@@ -92,7 +97,7 @@ describe('MaestroProductos', () => {
   });
 
   it('la edición precarga el formulario y envía el id', async () => {
-    comp.alAccion({ accion: 'editar', fila: datos[1] });
+    comp.alAccion({ accion: 'editar', fila: comp.filas()[1] });
     expect(comp.dialogoVisible()).toBe(true);
     expect(comp.form.getRawValue().tipoProducto).toBe(2);
     comp.form.patchValue({ nombre: 'Flete 2' });
