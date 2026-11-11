@@ -113,6 +113,18 @@ describe('MaestroClientes', () => {
     expect(exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
   });
 
+  it('un campo obligatorio tocado y vacío queda con aria-invalid y muestra el mensaje', async () => {
+    comp.abrir();
+    comp.form.controls.ruc.markAsTouched();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const ruc = document.querySelector('[data-testid="ruc"]') as HTMLElement;
+    expect(ruc.getAttribute('aria-invalid')).toBe('true');
+    expect(ruc.getAttribute('aria-describedby')).toBe('ruc-error');
+    expect(document.getElementById('ruc-error')?.textContent).toContain('REQUERIDO');
+  });
+
   it('valida requeridos y formato de correo', async () => {
     comp.abrir();
     expect(comp.form.invalid).toBe(true);

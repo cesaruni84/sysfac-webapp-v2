@@ -114,6 +114,24 @@ describe('MaestroProductos', () => {
     expect(exito).toHaveBeenCalledWith('Registro actualizado correctamente !');
   });
 
+  it('un campo obligatorio tocado y vacío queda con aria-invalid y muestra el mensaje', async () => {
+    comp.abrir();
+    comp.form.controls.codigo.markAsTouched();
+    comp.form.controls.stock.setValue(null);
+    comp.form.controls.stock.setErrors({ number: true });
+    comp.form.controls.stock.markAsTouched();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const codigo = document.querySelector('[data-testid="codigo"]') as HTMLElement;
+    expect(codigo.getAttribute('aria-invalid')).toBe('true');
+    expect(codigo.getAttribute('aria-describedby')).toBe('codigo-error');
+    expect(document.getElementById('codigo-error')?.textContent).toContain('REQUERIDO');
+    const stock = document.querySelector('#stock') as HTMLElement;
+    expect(stock.getAttribute('aria-invalid')).toBe('true');
+    expect(stock.getAttribute('aria-describedby')).toBe('stock-error');
+  });
+
   it('no guarda un formulario inválido', async () => {
     comp.abrir();
     await comp.guardar();

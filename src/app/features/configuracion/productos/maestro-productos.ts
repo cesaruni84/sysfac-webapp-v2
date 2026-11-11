@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 
 import { Categoria, Producto } from '../../../core/models';
@@ -56,6 +57,7 @@ interface FormularioProducto {
     ButtonModule,
     InputNumberModule,
     InputTextModule,
+    MessageModule,
     SelectModule,
     Tabla,
     TablaCelda,
@@ -104,16 +106,16 @@ interface FormularioProducto {
         </div>
         <label class="flex flex-col gap-1 sm:col-span-2">
           <span class="text-sm font-medium">CODIGO</span>
-          <input pInputText formControlName="codigo" maxlength="25" data-testid="codigo" />
+          <input pInputText formControlName="codigo" maxlength="25" data-testid="codigo" [invalid]="invalido('codigo')" [attr.aria-invalid]="invalido('codigo') || null" [attr.aria-describedby]="invalido('codigo') ? 'codigo-error' : null" />
           @if (invalido('codigo')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="codigo-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </label>
         <label class="flex flex-col gap-1 sm:col-span-6">
           <span class="text-sm font-medium">NOMBRE</span>
-          <input pInputText formControlName="nombre" data-testid="nombre" />
+          <input pInputText formControlName="nombre" data-testid="nombre" [invalid]="invalido('nombre')" [attr.aria-invalid]="invalido('nombre') || null" [attr.aria-describedby]="invalido('nombre') ? 'nombre-error' : null" />
           @if (invalido('nombre')) {
-            <small class="text-red-500">* REQUERIDO</small>
+            <p-message id="nombre-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
           }
         </label>
         <label class="flex flex-col gap-1 sm:col-span-6">
@@ -129,9 +131,12 @@ interface FormularioProducto {
             [maxFractionDigits]="4"
             [useGrouping]="false"
             data-testid="stock"
+            [invalid]="invalido('stock')"
+            [ariaDescribedBy]="invalido('stock') ? 'stock-error' : undefined"
+            [pt]="{ pcInputText: { root: { 'aria-invalid': invalido('stock') || null } } }"
           />
           @if (invalido('stock')) {
-            <small class="text-red-500">* FORMATO INCORRECTO</small>
+            <p-message id="stock-error" severity="error" variant="simple" size="small">* FORMATO INCORRECTO</p-message>
           }
         </div>
         <div class="flex flex-col gap-1 sm:col-span-2">
@@ -143,9 +148,12 @@ interface FormularioProducto {
             [maxFractionDigits]="4"
             [useGrouping]="false"
             data-testid="precio"
+            [invalid]="invalido('precio')"
+            [ariaDescribedBy]="invalido('precio') ? 'precio-error' : undefined"
+            [pt]="{ pcInputText: { root: { 'aria-invalid': invalido('precio') || null } } }"
           />
           @if (invalido('precio')) {
-            <small class="text-red-500">* FORMATO INCORRECTO</small>
+            <p-message id="precio-error" severity="error" variant="simple" size="small">* FORMATO INCORRECTO</p-message>
           }
         </div>
       </form>

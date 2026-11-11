@@ -82,6 +82,21 @@ describe('MaestroTarifas', () => {
     expect(comp.form.controls.direOrigen.disabled).toBe(true);
   });
 
+  it('campos obligatorios tocados y vacíos quedan con aria-invalid y muestran el mensaje', async () => {
+    comp.abrir();
+    comp.form.markAllAsTouched();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const importe = document.querySelector('#importe') as HTMLElement;
+    expect(importe.getAttribute('aria-invalid')).toBe('true');
+    expect(importe.getAttribute('aria-describedby')).toBe('importe-error');
+    expect(document.getElementById('importe-error')?.textContent).toContain('REQUERIDO');
+    const origen = document.querySelector('[data-testid="origen"] [aria-invalid="true"]');
+    expect(origen?.getAttribute('aria-describedby')).toBe('origen-error');
+    expect(document.getElementById('origen-error')?.textContent).toContain('REQUERIDO');
+  });
+
   it('el alta envía el JSON de v1 (empresa de sesión, turno 1, estado 0 si activo)', async () => {
     comp.abrir();
     expect(comp.form.invalid).toBe(true);
