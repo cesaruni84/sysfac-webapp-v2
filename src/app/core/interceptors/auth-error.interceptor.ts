@@ -13,7 +13,7 @@ export const AVISO_SIN_CONEXION = {
   detalle: 'Verifique su conexión a internet e intente nuevamente.',
 } as const;
 
-/** Aviso global para errores 5xx. Detalle genérico: la pantalla muestra su `codeMessage`. */
+/** Aviso global para errores 5xx. Detalle genérico: la pantalla muestra su `errorMessage`. */
 export const AVISO_ERROR_SERVIDOR = {
   titulo: 'Error del servidor',
   detalle: 'Ocurrió un error inesperado. Intente nuevamente en unos minutos.',
@@ -24,7 +24,9 @@ export const AVISO_ERROR_SERVIDOR = {
  * - 401 (fuera del login): limpia sesión y navega a /sessions/signin sin query params (como v1),
  *   salvo que ya se esté en /sessions/*.
  * - status 0 y 5xx: publica un aviso global (toast del layout) con `NotificacionService`.
- * - 4xx: sin aviso global; las pantallas muestran su mensaje de negocio (`error.error.codeMessage`).
+ * - 4xx: sin aviso global; las pantallas muestran su mensaje de negocio como v1: el texto para el
+ *   usuario es `error.error.errorMessage` (`ErrorResponse`); `codeMessage` es solo el código
+ *   (p. ej. `MFA2002`) y sirve para decidir, no para mostrar.
  * - El error siempre se propaga sin modificar.
  */
 export const authErrorInterceptor: HttpInterceptorFn = (req, next) => {
