@@ -1,0 +1,94 @@
+<p-card>
+  <div class="mb-4 text-center">
+    <h1 class="m-0 text-lg font-medium text-primary">
+      MÓDULO DE FACTURACIÓN ONLINE<span class="sr-only"> - Iniciar sesión</span>
+    </h1>
+    <p class="m-0 text-sm text-muted-color">Inicie sesión en su cuenta</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="signin()" class="flex flex-col gap-4" novalidate>
+    <div class="flex flex-col gap-1">
+      <label for="username">Usuario</label>
+      <input
+        pInputText
+        id="username"
+        name="username"
+        formControlName="username"
+        autocomplete="username"
+        class="w-full"
+        [invalid]="invalido('username')"
+        [attr.aria-invalid]="invalido('username') || null"
+        [attr.aria-describedby]="invalido('username') ? 'username-error' : null"
+      />
+      @if (invalido('username')) {
+        <p-message id="username-error" severity="error" variant="simple" size="small">
+          Usuario es requerido
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="password">Password</label>
+      <input
+        pInputText
+        id="password"
+        name="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        class="w-full"
+        [invalid]="invalido('password')"
+        [attr.aria-invalid]="invalido('password') || null"
+        [attr.aria-describedby]="invalido('password') ? 'password-error' : null"
+      />
+      @if (invalido('password')) {
+        <p-message id="password-error" severity="error" variant="simple" size="small">
+          Password es requerido
+        </p-message>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label id="empresaSelected-label" for="empresaSelected">Empresa</label>
+      <p-select
+        inputId="empresaSelected"
+        name="empresaSelected"
+        ariaLabelledBy="empresaSelected-label"
+        formControlName="empresaSelected"
+        [options]="empresas()"
+        optionLabel="comercial"
+        placeholder="Seleccione una empresa"
+        class="w-full"
+        [pt]="{
+          label: {
+            'aria-describedby': invalido('empresaSelected') ? 'empresaSelected-error' : null,
+            'aria-invalid': invalido('empresaSelected') || null,
+          },
+        }"
+        [invalid]="invalido('empresaSelected')"
+      >
+        <ng-template #selectedItem let-empresa
+          >{{ empresa.comercial }} - RUC {{ empresa.ruc }}</ng-template
+        >
+        <ng-template #item let-empresa>{{ empresa.comercial }} - RUC {{ empresa.ruc }}</ng-template>
+      </p-select>
+      @if (invalido('empresaSelected')) {
+        <p-message id="empresaSelected-error" severity="error" variant="simple" size="small">
+          Empresa es requerida
+        </p-message>
+      }
+    </div>
+
+    @if (error(); as mensaje) {
+      <p-message severity="error">{{ mensaje }}</p-message>
+    }
+
+    <p-button
+      type="submit"
+      label="Ingresar"
+      styleClass="w-full"
+      [loading]="cargando()"
+      [disabled]="form.invalid || cargando()"
+    />
+  </form>
+</p-card>
