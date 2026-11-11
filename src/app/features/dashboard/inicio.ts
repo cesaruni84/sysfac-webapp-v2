@@ -13,7 +13,7 @@ const DESCRIPCIONES: Readonly<Record<string, string>> = {
   liquidacion: 'Registra y consulta liquidaciones.',
   facturacion: 'Emite, consulta y audita facturas.',
   configuracion: 'Administra plantas, tarifas, choferes, vehículos, productos y clientes.',
-  usuarios: 'Revisa y edita tu perfil.',
+  usuarios: 'Consulta tus datos y los de tu empresa.',
   mapa: 'Ubica las unidades en el mapa.',
 };
 
@@ -33,6 +33,7 @@ export interface Acceso {
   enlaces: AccesoEnlace[];
 }
 
+/** Solo admite `routerLink` de tipo string, como el menú actual de negocio. */
 function aEnlace(item: MenuItem): AccesoEnlace {
   const url = typeof item.routerLink === 'string' && !item.disabled ? item.routerLink : null;
   return { id: item.id ?? item.label ?? '', label: item.label ?? '', url };
@@ -41,7 +42,7 @@ function aEnlace(item: MenuItem): AccesoEnlace {
 /** Accesos de la portada a partir del menú de negocio (ya filtrado por cargo), sin "Principal". */
 export function crearAccesos(menu: MenuItem[]): Acceso[] {
   return menu
-    .filter((item) => item.id !== 'principal')
+    .filter((item) => item.id !== 'principal' && item.routerLink !== '/dashboard')
     .map((item) => {
       const hijos = item.items ?? [];
       return {
@@ -64,11 +65,11 @@ export function nombreCompleto(usuario: Usuario | null): string {
     .join(' ');
 }
 
-/** Empresa de la sesión: razón social o nombre comercial, más RUC. */
+/** Empresa de la sesión (como el header): nombre comercial o, si falta, razón social, más RUC. */
 export function empresaConRuc(usuario: Usuario | null): string {
   const empresa = usuario?.empresa;
   if (!empresa) return '';
-  const nombre = empresa.razonSocial || empresa.comercial || '';
+  const nombre = empresa.comercial || empresa.razonSocial || '';
   return [nombre, empresa.ruc ? `RUC ${empresa.ruc}` : ''].filter(Boolean).join(' - ');
 }
 
@@ -78,7 +79,7 @@ export function empresaConRuc(usuario: Usuario | null): string {
   imports: [CardModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (usuario(); as u) {
+    @if (usuario()) {
       <section class="mb-6" aria-labelledby="inicio-titulo">
         <h1 id="inicio-titulo" class="m-0 text-2xl font-semibold" data-testid="inicio-saludo">
           @if (nombre()) {
@@ -90,7 +91,10 @@ export function empresaConRuc(usuario: Usuario | null): string {
         @if (empresa()) {
           <p class="mb-0 mt-1 text-muted-color" data-testid="inicio-empresa">{{ empresa() }}</p>
         }
-        <p class="mb-0 mt-1 text-sm capitalize text-muted-color" data-testid="inicio-fecha">
+        <p
+          class="mb-0 mt-1 text-sm first-letter:uppercase text-muted-color"
+          data-testid="inicio-fecha"
+        >
           {{ fecha }}
         </p>
       </section>
@@ -130,7 +134,6 @@ export function empresaConRuc(usuario: Usuario | null): string {
                             } @else {
                               <span
                                 class="inline-block rounded-full border border-surface px-3 py-1 text-sm text-muted-color opacity-60"
-                                aria-disabled="true"
                                 >{{ e.label }} (no disponible)</span
                               >
                             }
