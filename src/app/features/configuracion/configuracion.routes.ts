@@ -2,51 +2,18 @@ import { Routes } from '@angular/router';
 
 /**
  * Rutas de la feature `configuracion` (maestros; montada en /forms/configuracion).
- * STUB de la oleada 1: cada ruta muestra PlaceholderPage hasta que se implemente la pantalla.
+ *
+ * Una subcarpeta por maestro, cada una con su `<maestro>.routes.ts` (title, data y pantalla).
+ * Así 4.4 (factorias, choferes, vehiculos) y 4.5 (productos, clientes, tarifas) no comparten
+ * archivos. Este archivo lo edita solo el orquestador.
  */
 const routes: Routes = [
-  {
-    path: 'factorias',
-    title: 'Plantas | SYSFAC',
-    data: { title: 'Plantas', breadcrumb: 'Plantas' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
-  },
-  {
-    path: 'tarifas',
-    title: 'Tarifas | SYSFAC',
-    data: { title: 'Tarifas', breadcrumb: 'Tarifas' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
-  },
-  {
-    path: 'choferes',
-    title: 'Choferes | SYSFAC',
-    data: { title: 'Choferes', breadcrumb: 'Choferes' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
-  },
-  {
-    path: 'vehiculos',
-    title: 'Vehículos | SYSFAC',
-    data: { title: 'Vehículos', breadcrumb: 'Vehículos' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
-  },
-  {
-    path: 'productos',
-    title: 'Productos | SYSFAC',
-    data: { title: 'Productos', breadcrumb: 'Productos' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
-  },
-  {
-    path: 'clientes',
-    title: 'Clientes | SYSFAC',
-    data: { title: 'Clientes', breadcrumb: 'Clientes' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
-  },
+  { path: 'factorias', loadChildren: () => import('./factorias/factorias.routes') },
+  { path: 'tarifas', loadChildren: () => import('./tarifas/tarifas.routes') },
+  { path: 'choferes', loadChildren: () => import('./choferes/choferes.routes') },
+  { path: 'vehiculos', loadChildren: () => import('./vehiculos/vehiculos.routes') },
+  { path: 'productos', loadChildren: () => import('./productos/productos.routes') },
+  { path: 'clientes', loadChildren: () => import('./clientes/clientes.routes') },
 ];
 
 export default routes;

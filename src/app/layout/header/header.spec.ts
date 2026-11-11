@@ -55,6 +55,15 @@ describe('LayoutHeader', () => {
     return fixture;
   }
 
+  it('el menú de usuario no muestra "null" si el backend no envía apellidos', () => {
+    TestBed.inject(SessionService).setUserLoggedIn({
+      ...usuarioCompleto,
+      apellidos: null as unknown as string,
+    });
+    const fixture = crear();
+    expect(fixture.componentInstance.opcionesUsuario()[0].label).toBe(usuarioCompleto.nombres);
+  });
+
   it('muestra empresa y usuario de la sesión', () => {
     const el = crear().nativeElement as HTMLElement;
     expect(el.querySelector('header')).not.toBeNull();

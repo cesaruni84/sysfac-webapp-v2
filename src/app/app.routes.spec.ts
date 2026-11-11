@@ -5,6 +5,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import { routes } from './app.routes';
 import { CURRENT_USER_KEY } from './core/auth';
 import { usuarioMock } from './core/auth/auth.testing';
+import { provideHttpVacio } from './testing/http-vacio';
 
 /** URLs de negocio de v1 (privadas: protegidas por authGuard). */
 const urlsPrivadas: [url: string, titulo: string][] = [
@@ -32,7 +33,7 @@ describe('app.routes', { timeout: 20_000 }, () => {
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
-      providers: [provideRouter(routes, withComponentInputBinding())],
+      providers: [provideRouter(routes, withComponentInputBinding()), provideHttpVacio()],
     });
   });
 

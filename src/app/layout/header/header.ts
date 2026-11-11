@@ -129,7 +129,8 @@ export class LayoutHeader {
     const u = this.usuario();
     return [
       {
-        label: u ? `${u.nombres} ${u.apellidos}`.trim() : 'Usuario',
+        // Sin "null" si el backend no envía apellidos (o nombres).
+        label: (u && [u.nombres, u.apellidos].filter(Boolean).join(' ')) || 'Usuario',
         items: [
           { label: 'Cerrar sesión', icon: 'pi pi-sign-out', command: () => this.cerrarSesion() },
         ],
