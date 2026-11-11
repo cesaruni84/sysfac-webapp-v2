@@ -21,7 +21,8 @@ export class UsuariosPage {
 
   readonly nombreCompleto = computed(() => {
     const u = this.usuario();
-    return u ? `${u.nombres} ${u.apellidos}`.trim() : '';
+    // Sin "null" si el backend no envía apellidos (o nombres).
+    return u ? [u.nombres, u.apellidos].filter(Boolean).join(' ') : '';
   });
 
   readonly datosUsuario = computed<Campo[]>(() => {

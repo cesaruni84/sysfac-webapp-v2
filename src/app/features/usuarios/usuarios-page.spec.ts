@@ -44,6 +44,16 @@ describe('UsuariosPage', () => {
     expect(el.querySelector('[data-testid="sin-sesion"]')).toBeNull();
   });
 
+  it('no muestra "null" si el backend no envía apellidos', () => {
+    TestBed.inject(SessionService).setUserLoggedIn({
+      ...usuario,
+      apellidos: null as unknown as string,
+    });
+    const fixture = TestBed.createComponent(UsuariosPage);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.nombreCompleto()).toBe('Juan');
+  });
+
   it('muestra aviso sin sesión', () => {
     const fixture = TestBed.createComponent(UsuariosPage);
     fixture.detectChanges();
