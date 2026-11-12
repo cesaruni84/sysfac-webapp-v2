@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { GrillaGuiaRemision, GuiaRemision, InfoResponse } from '../../models';
+import { GrillaGuiaRemision, GuiaRemision, GuiaRemisionEnvio, InfoResponse } from '../../models';
 import { jsonHttpOptions } from '../http-options';
 
 /**
@@ -102,11 +102,11 @@ export class GuiaRemisionService {
     return this.http.get<GrillaGuiaRemision[]>(`${this.empresas}${idEmpresa}/guias/SRV3`);
   }
 
-  registrarGuiaRemisionBD(guiaRemision: GuiaRemision): Observable<InfoResponse> {
+  registrarGuiaRemisionBD(guiaRemision: GuiaRemision | GuiaRemisionEnvio): Observable<InfoResponse> {
     return this.http.post<InfoResponse>(this.guias, guiaRemision, jsonHttpOptions);
   }
 
-  actualizarGuiaRemisionBD(guiaRemision: GuiaRemision): Observable<InfoResponse> {
+  actualizarGuiaRemisionBD(guiaRemision: GuiaRemision | GuiaRemisionEnvio): Observable<InfoResponse> {
     return this.http.put<InfoResponse>(`${this.guias}/${guiaRemision.id}`, guiaRemision, jsonHttpOptions);
   }
 
@@ -115,7 +115,7 @@ export class GuiaRemisionService {
   }
 
   /** v1 usa id fijo 0 en la URL (`/guias/0/extorno`). */
-  anularGuiaRemisionBD(guiaRemision: GuiaRemision): Observable<InfoResponse> {
+  anularGuiaRemisionBD(guiaRemision: GuiaRemision | GuiaRemisionEnvio): Observable<InfoResponse> {
     return this.http.put<InfoResponse>(`${this.guias}/0/extorno`, guiaRemision, jsonHttpOptions);
   }
 
