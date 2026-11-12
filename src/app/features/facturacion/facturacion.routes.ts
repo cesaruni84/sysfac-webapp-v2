@@ -16,15 +16,13 @@ const routes: Routes = [
     path: 'consulta',
     title: 'Consulta de facturas | SYSFAC',
     data: { title: 'Consulta de facturas', breadcrumb: 'Consulta' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+    loadComponent: () => import('./consulta/consulta-facturas').then((m) => m.ConsultaFacturas),
   },
   {
     path: 'auditoria',
     title: 'Auditoría de facturas | SYSFAC',
     data: { title: 'Auditoría de facturas', breadcrumb: 'Auditoría' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+    loadComponent: () => import('./auditoria/auditoria-facturas').then((m) => m.AuditoriaFacturas),
   },
 ];
 
