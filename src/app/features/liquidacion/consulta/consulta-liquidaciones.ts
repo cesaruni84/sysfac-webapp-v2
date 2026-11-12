@@ -75,6 +75,7 @@ export function glosaEstadoLiquidacion(estado: number | string | undefined): str
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <h1 class="sr-only">Consulta de liquidaciones</h1>
     <form [formGroup]="filtros" (ngSubmit)="buscar()" class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div class="flex flex-col gap-1">
         <label for="cl-nro" class="text-sm font-medium">NRO. DE LIQUIDACION</label>
