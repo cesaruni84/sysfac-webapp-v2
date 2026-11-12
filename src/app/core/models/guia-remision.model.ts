@@ -46,6 +46,19 @@ export class GuiaRemision {
   idProducto?: string;
 }
 
+/**
+ * Cuerpo que el registro de guías de v1 (`basic-form`) envía al alta, la edición y la anulación.
+ * Difiere de `GuiaRemision` en dos campos:
+ * - `estado`: en alta/edición v1 lo toma del combo, cuyos valores son strings (`'0'`/`'1'`);
+ *   en la anulación envía el número `EstadoGuia.ANULADO`.
+ * - `liquidacion` y `documento`: solo llevan el `id`.
+ */
+export type GuiaRemisionEnvio = Omit<GuiaRemision, 'estado' | 'liquidacion' | 'documento'> & {
+  estado?: string | number;
+  liquidacion?: Pick<Liquidacion, 'id'>;
+  documento?: Pick<Documento, 'id'>;
+};
+
 export enum EstadoGuia {
   REGISTRADO = 0,
   ANULADO = 1,
