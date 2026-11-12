@@ -1,0 +1,263 @@
+<h1 class="sr-only">Registro de guías de remisión</h1>
+
+<form [formGroup]="form" (ngSubmit)="grabar()" novalidate class="flex flex-col gap-4 text-sm">
+  <!-- DATOS BASICOS -->
+  <section class="rounded-md border border-surface" aria-labelledby="g-sec-basicos">
+    <h2 id="g-sec-basicos" class="rounded-t-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-contrast">DATOS BASICOS</h2>
+    <div class="flex flex-col gap-4 p-3">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div class="flex flex-col gap-1">
+          <label for="g-empresa" class="font-semibold">EMPRESA :</label>
+          <input pInputText id="g-empresa" [value]="empresaTexto" readonly class="w-full" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-direccion" class="font-semibold">DIRECCION :</label>
+          <input pInputText id="g-direccion" [value]="empresaDireccion" readonly class="w-full" />
+        </div>
+      </div>
+
+      <fieldset class="grid grid-cols-2 items-start gap-4 md:grid-cols-[10rem_7rem_9rem_auto_minmax(10rem,14rem)]">
+        <legend class="sr-only">GUIA REMISION:</legend>
+        <span aria-hidden="true" class="col-span-full self-center font-semibold md:col-span-1 md:pt-6">GUIA REMISION:</span>
+        <div class="flex flex-col gap-1">
+          <label for="g-serie" class="font-semibold">SERIE</label>
+          <input pInputText id="g-serie" formControlName="nroSerie" maxlength="5" inputmode="numeric" class="w-full"
+            [invalid]="invalido('nroSerie')" (input)="filtrarDigitos('nroSerie', $event, 5)" (change)="alCambiarSerie('nroSerie')"
+            [attr.aria-describedby]="invalido('nroSerie') ? 'g-serie-error' : null" data-testid="nroSerie" />
+          @if (invalido('nroSerie')) {
+            <p-message id="g-serie-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-secuencia" class="font-semibold">SECUENCIA</label>
+          <input pInputText id="g-secuencia" formControlName="nroSecuencia" maxlength="8" inputmode="numeric" class="w-full"
+            [invalid]="invalido('nroSecuencia')" (input)="filtrarDigitos('nroSecuencia', $event, 8)" (change)="alCambiarSecuencia()"
+            [attr.aria-describedby]="invalido('nroSecuencia') ? 'g-secuencia-error' : null" data-testid="nroSecuencia" />
+          @if (invalido('nroSecuencia')) {
+            <p-message id="g-secuencia-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex items-end pt-6">
+          <p-button type="button" icon="pi pi-search" [rounded]="true" [text]="true" pTooltip="Consultar por Guia Empresa"
+            ariaLabel="Consultar por Guia Empresa" [disabled]="bloqueado()" (onClick)="consultarGuia()" data-testid="consultarGuia" />
+        </div>
+        <div class="col-span-2 flex flex-col gap-1 md:col-span-1">
+          <label id="g-estado-label" for="g-estado" class="font-semibold">ESTADO DE GUIA</label>
+          <p-select inputId="g-estado" ariaLabelledBy="g-estado-label" formControlName="estadoSelected" [options]="estados"
+            optionLabel="etiqueta" optionValue="valor" appendTo="body" class="w-full" />
+        </div>
+      </fieldset>
+
+      <fieldset class="grid grid-cols-2 items-start gap-4 md:grid-cols-[10rem_7rem_9rem_auto_minmax(10rem,14rem)_minmax(10rem,14rem)]">
+        <legend class="sr-only">GUIA REMISION CLI:</legend>
+        <span aria-hidden="true" class="col-span-full self-center font-semibold md:col-span-1 md:pt-6">GUIA REMISION CLI:</span>
+        <div class="flex flex-col gap-1">
+          <label for="g-serie-cli" class="font-semibold">SERIE</label>
+          <input pInputText id="g-serie-cli" formControlName="nroSerieClie" maxlength="5" inputmode="numeric" class="w-full"
+            [invalid]="invalido('nroSerieClie')" (input)="filtrarDigitos('nroSerieClie', $event, 5)" (change)="alCambiarSerie('nroSerieClie')"
+            [attr.aria-describedby]="invalido('nroSerieClie') ? 'g-serie-cli-error' : null" data-testid="nroSerieClie" />
+          @if (invalido('nroSerieClie')) {
+            <p-message id="g-serie-cli-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-secuencia-cli" class="font-semibold">SECUENCIA</label>
+          <input pInputText id="g-secuencia-cli" formControlName="nroSequenClie" maxlength="8" inputmode="numeric" class="w-full"
+            [invalid]="invalido('nroSequenClie')" (input)="filtrarDigitos('nroSequenClie', $event, 8)" (change)="alCambiarSecuenciaCliente()"
+            [attr.aria-describedby]="invalido('nroSequenClie') ? 'g-secuencia-cli-error' : null" data-testid="nroSequenClie" />
+          @if (invalido('nroSequenClie')) {
+            <p-message id="g-secuencia-cli-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex items-end pt-6">
+          <p-button type="button" icon="pi pi-search" [rounded]="true" [text]="true" pTooltip="Consultar por Guia Cliente"
+            ariaLabel="Consultar por Guia Cliente" [disabled]="bloqueado()" (onClick)="consultarGuiaCliente()" data-testid="consultarGuiaCliente" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-fecha-emision" class="font-semibold">FECHA EMISION</label>
+          <p-datepicker inputId="g-fecha-emision" formControlName="fechaEmision" dateFormat="dd/mm/yy" [showIcon]="true"
+            appendTo="body" styleClass="w-full" [invalid]="invalido('fechaEmision')"
+            [attr.aria-describedby]="invalido('fechaEmision') ? 'g-fecha-emision-error' : null" />
+          @if (invalido('fechaEmision')) {
+            <p-message id="g-fecha-emision-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-fecha-traslado" class="font-semibold">FECHA INI TRASLADO</label>
+          <!-- v1: el texto no se edita; la fecha se copia de la emisión o se elige en el calendario. -->
+          <p-datepicker inputId="g-fecha-traslado" formControlName="fechaIniTraslado" dateFormat="dd/mm/yy" [showIcon]="true"
+            [readonlyInput]="true" appendTo="body" styleClass="w-full" />
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <!-- REMITENTE -->
+    <section class="rounded-md border border-surface" aria-labelledby="g-sec-remitente">
+      <h2 id="g-sec-remitente" class="rounded-t-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-contrast">REMITENTE</h2>
+      <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-[1fr_12rem]">
+        <div class="flex flex-col gap-1">
+          <label id="g-remitente-label" for="g-remitente" class="font-semibold">RAZON SOCIAL / PLANTA</label>
+          <p-select inputId="g-remitente" ariaLabelledBy="g-remitente-label" formControlName="remitenteSelected"
+            [options]="factoriasOrigen()" optionLabel="refLarga2" dataKey="id" [filter]="true" filterBy="refLarga2"
+            filterPlaceholder="Buscar ..." emptyFilterMessage="No existen coincidencias" appendTo="body" class="w-full"
+            [invalid]="invalido('remitenteSelected')" (onChange)="seleccionarRemitente($event.value)" data-testid="remitente" />
+          @if (invalido('remitenteSelected')) {
+            <p-message severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-ruc-remitente" class="font-semibold">RUC</label>
+          <input pInputText id="g-ruc-remitente" [value]="rucRemitente()" readonly class="w-full" />
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label for="g-dir-remitente" class="font-semibold">DIRECCION</label>
+          <input pInputText id="g-dir-remitente" [value]="dirRemitente()" readonly class="w-full" />
+        </div>
+      </div>
+    </section>
+
+    <!-- DESTINATARIO -->
+    <section class="rounded-md border border-surface" aria-labelledby="g-sec-destinatario">
+      <h2 id="g-sec-destinatario" class="rounded-t-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-contrast">DESTINATARIO</h2>
+      <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-[1fr_12rem]">
+        <div class="flex flex-col gap-1">
+          <label id="g-destinatario-label" for="g-destinatario" class="font-semibold">RAZON SOCIAL / PLANTA</label>
+          <p-select inputId="g-destinatario" ariaLabelledBy="g-destinatario-label" formControlName="destinatarioSelected"
+            [options]="factoriasDestino()" optionLabel="refLarga2" dataKey="id" [filter]="true" filterBy="refLarga2"
+            filterPlaceholder="Buscar ..." emptyFilterMessage="No existen coincidencias" appendTo="body" class="w-full"
+            [invalid]="invalido('destinatarioSelected')" (onChange)="seleccionarDestinatario($event.value)" data-testid="destinatario" />
+          @if (invalido('destinatarioSelected')) {
+            <p-message severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-ruc-destinatario" class="font-semibold">RUC</label>
+          <input pInputText id="g-ruc-destinatario" [value]="rucDestinatario()" readonly class="w-full" />
+        </div>
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label for="g-dir-destinatario" class="font-semibold">DIRECCION</label>
+          <input pInputText id="g-dir-destinatario" [value]="dirDestinatario()" readonly class="w-full" />
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="rounded-md border border-surface" aria-labelledby="g-sec-productos">
+      <h2 id="g-sec-productos" class="rounded-t-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-contrast">PRODUCTOS</h2>
+      <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-[10rem_1fr]">
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label id="g-producto-label" for="g-producto" class="font-semibold">DESCRIPCION</label>
+          <p-select inputId="g-producto" ariaLabelledBy="g-producto-label" formControlName="productoSelected"
+            [options]="productos()" optionLabel="nombre" dataKey="id" [filter]="true" filterBy="nombre"
+            filterPlaceholder="Buscar ..." emptyFilterMessage="No existen coincidencias" appendTo="body" class="w-full"
+            [invalid]="invalido('productoSelected')" data-testid="producto" />
+          @if (invalido('productoSelected')) {
+            <p-message severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-cantidad" class="font-semibold">CANTIDAD</label>
+          <input pInputText id="g-cantidad" type="number" formControlName="cantidad" class="w-full"
+            [invalid]="invalido('cantidad')" [attr.aria-describedby]="invalido('cantidad') && form.controls.cantidad.hasError('required') ? 'g-cantidad-error' : null"
+            data-testid="cantidad" />
+          @if (invalido('cantidad') && form.controls.cantidad.hasError('required')) {
+            <p-message id="g-cantidad-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+        <div class="flex flex-col gap-1">
+          <label id="g-unidad-label" for="g-unidad" class="font-semibold">UNIDAD DE MEDIDA</label>
+          <p-select inputId="g-unidad" ariaLabelledBy="g-unidad-label" formControlName="unidadMedidaSelected"
+            [options]="unidadesMedida()" optionLabel="descripcion" dataKey="id" appendTo="body" class="w-full"
+            [invalid]="invalido('unidadMedidaSelected')">
+            <ng-template #selectedItem let-u>{{ u.valor + ' - ' + u.descripcion }}</ng-template>
+            <ng-template #item let-u>{{ u.valor + ' - ' + u.descripcion }}</ng-template>
+          </p-select>
+          @if (invalido('unidadMedidaSelected')) {
+            <p-message severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- BALANZA -->
+    <section class="rounded-md border border-surface" aria-labelledby="g-sec-balanza">
+      <h2 id="g-sec-balanza" class="rounded-t-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-contrast">BALANZA</h2>
+      <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label id="g-balanza-label" for="g-balanza" class="font-semibold">CODIGO BALANZA</label>
+          <p-select inputId="g-balanza" ariaLabelledBy="g-balanza-label" formControlName="balanzaSelected"
+            [options]="balanzas()" optionLabel="descripcion" dataKey="id" [filter]="true" filterBy="descripcion"
+            filterPlaceholder="Buscar ..." emptyFilterMessage="No existen coincidencias" appendTo="body" class="w-full" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-ticket" class="font-semibold">NRO DE TICKET BALANZA</label>
+          <input pInputText id="g-ticket" formControlName="nroTicketBal" maxlength="10" class="w-full" data-testid="ticket" />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="g-fecha-recepcion" class="font-semibold">FECHA DE RECEPCION</label>
+          <p-datepicker inputId="g-fecha-recepcion" formControlName="fechaRecepcion" dateFormat="dd/mm/yy" [showIcon]="true"
+            appendTo="body" styleClass="w-full" [invalid]="invalido('fechaRecepcion')"
+            [attr.aria-describedby]="invalido('fechaRecepcion') ? 'g-fecha-recepcion-error' : null" />
+          @if (invalido('fechaRecepcion')) {
+            <p-message id="g-fecha-recepcion-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- UNIDAD DE TRANSPORTE -->
+  <section class="rounded-md border border-surface" aria-labelledby="g-sec-transporte">
+    <h2 id="g-sec-transporte" class="rounded-t-md bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-contrast">UNIDAD DE TRANSPORTE</h2>
+    <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+      <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-1">
+        <label id="g-chofer-label" for="g-chofer" class="font-semibold">CHOFER</label>
+        <p-select inputId="g-chofer" ariaLabelledBy="g-chofer-label" formControlName="choferSelected"
+          [options]="choferes()" optionLabel="nombres" dataKey="id" [filter]="true" filterBy="nombres,apellidos"
+          filterPlaceholder="Buscar ..." emptyFilterMessage="No existen coincidencias" appendTo="body" class="w-full"
+          [invalid]="invalido('choferSelected')" (onChange)="seleccionarChofer($event.value)" data-testid="chofer">
+          <ng-template #selectedItem let-c>{{ c.nombres + ' ' + c.apellidos + ' - DNI ' + c.dni }}</ng-template>
+          <ng-template #item let-c>{{ c.nombres + ' ' + c.apellidos + ' - DNI ' + c.dni }}</ng-template>
+        </p-select>
+        @if (invalido('choferSelected')) {
+          <p-message severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="g-placa-tracto" class="font-semibold">PLACA TRACTO</label>
+        <input pInputText id="g-placa-tracto" formControlName="placaTracto" maxlength="10" class="w-full"
+          [invalid]="invalido('placaTracto')" [attr.aria-describedby]="invalido('placaTracto') ? 'g-placa-tracto-error' : null" />
+        @if (invalido('placaTracto')) {
+          <p-message id="g-placa-tracto-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="g-placa-bombona" class="font-semibold">PLACA BOMBONA</label>
+        <input pInputText id="g-placa-bombona" formControlName="placaBombona" maxlength="10" class="w-full"
+          [invalid]="invalido('placaBombona')" [attr.aria-describedby]="invalido('placaBombona') ? 'g-placa-bombona-error' : null" />
+        @if (invalido('placaBombona')) {
+          <p-message id="g-placa-bombona-error" severity="error" variant="simple" size="small">* REQUERIDO</p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="g-certificado" class="font-semibold">NRO. CERT. INSCRIPCION</label>
+        <input pInputText id="g-certificado" [value]="certificado()" readonly class="w-full" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="g-licencia" class="font-semibold">NRO. LICENCIA CONDUCIR</label>
+        <input pInputText id="g-licencia" [value]="licencia()" readonly class="w-full" />
+      </div>
+    </div>
+  </section>
+
+  <div class="flex flex-wrap justify-center gap-2">
+    <p-button type="button" label="Regresar" icon="pi pi-arrow-left" (onClick)="regresar()" data-testid="regresar" />
+    <p-button type="submit" label="Grabar" icon="pi pi-save" pTooltip="Grabar Guia de Remisión"
+      [disabled]="guardando() || esperandoNueva() || bloqueado()" data-testid="grabar" />
+    <p-button type="button" label="Nuevo" icon="pi pi-file-plus" pTooltip="Nueva Guia de Remisión" (onClick)="nuevaGuia()" data-testid="nuevo" />
+    <p-button type="button" label="Anular" icon="pi pi-times-circle" severity="danger" pTooltip="Anular Guia de Remisión"
+      [disabled]="anulada()" (onClick)="anular()" data-testid="anular" />
+  </div>
+</form>
