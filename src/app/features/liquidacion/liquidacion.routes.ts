@@ -16,8 +16,7 @@ const routes: Routes = [
     path: 'busquedaLiquidaciones',
     title: 'Consulta de liquidaciones | SYSFAC',
     data: { title: 'Consulta de liquidaciones', breadcrumb: 'Consulta' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+    loadComponent: () => import('./consulta/consulta-liquidaciones').then((m) => m.ConsultaLiquidaciones),
   },
 ];
 
