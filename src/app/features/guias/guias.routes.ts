@@ -16,8 +16,7 @@ const routes: Routes = [
     path: 'paging',
     title: 'Consulta de guías | SYSFAC',
     data: { title: 'Consulta de guías', breadcrumb: 'Consulta' },
-    loadComponent: () =>
-      import('../../shared/ui/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage),
+    loadComponent: () => import('./consulta/consulta-guias').then((m) => m.ConsultaGuias),
   },
 ];
 
