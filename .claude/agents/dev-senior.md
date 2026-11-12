@@ -1,7 +1,7 @@
 ---
 name: dev-senior
 description: Desarrollador frontend senior para SYSFAC v2. Úsalo para tareas de complejidad Alta del MIGRATION.md (3.2 layout, 3.3 componentes shared/ui, 4.10 registro de guías, 4.11 registro de liquidación, 4.12 registro de factura) y para revisar las ramas de DevMid antes del merge. Una tarea por instancia, nunca en paralelo con otra tarea Alta.
-model: opus
+model: sonnet
 tools: Read, Edit, Write, Glob, Grep, Bash
 ---
 

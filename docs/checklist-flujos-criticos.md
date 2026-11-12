@@ -46,9 +46,10 @@ Datos de la ejecución:
 
 | # | Paso | Resultado esperado | v1 | v2 |
 |---|---|---|---|---|
-| 2.1 | Entrar al dashboard | Tarjetas con los mismos valores que en v1 | | |
-| 2.2 | Revisar los gráficos | Mismas series y totales | | |
-| 2.3 | Revisar la tabla | Mismas filas y columnas | | |
+| 2.1 | Entrar a `/dashboard` | Bienvenida con el usuario, la empresa (con RUC, como en el header) y la fecha de hoy | n/a | |
+| 2.2 | Revisar los accesos directos | Las mismas opciones que el menú lateral, según el cargo (un Registrador no ve Facturación) | n/a | |
+
+En v1 esta pantalla era la demo de Egret, con cifras fijas, y no se porta (historial 7 de `MIGRATION.md`). No se compara con v1.
 
 ## 3. Guías de remisión
 
@@ -164,8 +165,8 @@ Repetir para cada maestro: **Plantas** (`factorias`), **Tarifas**, **Choferes**,
 
 | # | Paso | Resultado esperado | v1 | v2 |
 |---|---|---|---|---|
-| 7.1 | `/profile`: ver los datos del usuario | Mismos datos que en v1 | | |
-| 7.2 | `/profile`: editar (si v1 lo permite) | **Comparar JSON** | | |
+| 7.1 | `/profile`: ver los datos del usuario | Datos del usuario y de la empresa de la sesión, solo lectura (en v1 era la demo de Egret) | n/a | |
+| 7.2 | `/profile/overview` y `/profile/settings` | Redirigen a `/profile` | | |
 | 7.3 | `/map`: abrir Localizar unidades | El mapa de Google carga sin errores de CSP en la consola | | |
 
 ## 8. Transversales (todas las pantallas)
@@ -197,6 +198,16 @@ Son cambios aprobados durante la migración. Si v1 y v2 difieren en estos puntos
 | 8.2 Menú "Usuarios" | Ítem sin enlace (no navegaba) | Enlaza a `/profile` | 2.6 |
 | 8.2 Menú "Factura Electrónica" | Enlazaba a una página 404 | Aparece deshabilitado | 2.6 |
 | 8.3 Breadcrumb | Toda pantalla de `/forms` mostraba "Guia de Remisión" enlazando a `/forms`; Auditoría decía "FACTURA CON ERRORES" | "Sección > Hoja" con los textos del menú; la sección no es un enlace | 2.6 |
+| 1.x Login | Enlaces "¿Olvidó clave?" y "Crear cuenta" (pantallas de demo de Egret); imagen de fondo y logo | Sin esos enlaces; fondo liso con la marca "SYSFAC" | 3.4, 4.1 |
+| 2.x Principal | Demo de Egret con cifras y gráficos fijos | Bienvenida y accesos directos según el cargo | 4.6 (historial 7) |
+| 7.1 Usuarios | Demo de Egret ("Jhone Doe", gráficos inventados) | Datos de la sesión, solo lectura | 4.2 |
+| 8.x URL desconocida | `/sessions/404` | Igual, dentro del layout de autenticación | 3.4 |
+| 6.4 Editar cliente DNI u OTRO | Enviaba siempre `tipoDoc: 1` (bug: convertía el cliente en RUC) | Envía el tipo real del cliente. **Aprobado por el usuario** | 4.5 |
+| 6.3 Crear tarifa sin moneda | `"moneda": ""` | `"moneda": null` (en la base queda `NULL` igual). **Aprobado por el usuario** | 4.5 |
+| 6.6 Validaciones de maestros | "* REQUERIDO" bajo cada campo; DNI y teléfono filtraban teclas | Mismos textos; además, DNI, teléfono y documento del cliente limpian lo pegado | 4.4, 4.5 |
+| 6.5 Confirmar baja de chofer o vehículo | El mensaje mostraba "undefined" | Muestra el nombre o las placas | 4.4 |
+| 6.x Combos de maestros | Si fallaba la carga, no avisaba | Muestra un aviso de error | 4.4 |
+| 6.5 Baja de tarifa | Recargaba al cerrarse el aviso (5 s); el loader quedaba abierto si fallaba | Recarga de inmediato; muestra un aviso si falla | 4.5 |
 
 ## Observaciones
 
