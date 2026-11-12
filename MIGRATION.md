@@ -154,7 +154,7 @@ Bastan **dos definiciones de agente** (DevMid y DevSenior) y el orquestador; no 
 | Rol | Definición | Modelo | Tareas |
 |---|---|---|---|
 | **Orquestador** (sesión abierta en v2, ver regla 11) | — | Opus | Fase 0, Fase 1, despliegue (1.1, 1.2b, 1.4–1.6), 5.5, tareas que tocan archivos compartidos, asignación, revisión, merge y reporte al usuario |
-| **DevSenior** | `.claude/agents/dev-senior.md` | Opus | 3.2, 3.3 (en secuencia, sin paralelo), 4.10, 4.11, 4.12 y revisión de los PR de DevMid antes del merge |
+| **DevSenior** | `.claude/agents/dev-senior.md` | Sonnet (Opus en 4.10–4.12, indicado por el orquestador al lanzar la tarea) | 3.2, 3.3 (en secuencia, sin paralelo), 4.10, 4.11, 4.12 y revisión de los PR de DevMid antes del merge |
 | **DevMid** | `.claude/agents/dev-mid.md` | Sonnet | 2.1–2.6, 3.4, 4.1–4.9 y 5.4 |
 
 ### Reglas para que los agentes no colisionen
@@ -231,3 +231,4 @@ Cambios aprobados por el usuario (regla 6 de `CLAUDE.md`):
 6. Angular baja de 22 a 21 y PrimeNG queda fijo en 21.1.10 (MIT), porque PrimeNG 22+ exige una clave de licencia; `primeicons` queda en 7.0.0 por el mismo motivo.
 7. El dashboard (4.6) pasa a ser una página de inicio con bienvenida y accesos directos (complejidad Baja): el de v1 es la demo de Egret, con cifras fijas y sin backend.
 8. `features/configuracion` se divide en una subcarpeta por maestro, con su propio archivo de rutas, para que 4.4 y 4.5 no compartan `configuracion.routes.ts` (regla 2 de colisiones).
+9. Para reducir el consumo, DevSenior usa Sonnet por defecto (revisiones). El orquestador pide Opus explícitamente solo para las tareas Altas críticas 4.10, 4.11 y 4.12.
